@@ -37,6 +37,7 @@
 	ERR(what, __VA_ARGS__	 );													\
 	{ body }																	\
 }
+#define EXCEPTION_LN(inset,...) { ERR(inset); ERR(__VA_ARGS__); }
 
 // -----------------------------------------------------------------------------+
 // {  WARNING  }: this is a statement explaining about warning (one line)		|
@@ -51,6 +52,7 @@
 	WRN(what, __VA_ARGS__    );													\
 	{ body }																	\
 }
+#define WARNING_LN(inset,...) { WRN(inset); WRN(__VA_ARGS__); }
 
 // -----------------------------------------------------------------------------+
 // {INFORMATION}: this is a statement explaining about information (one line)	|
@@ -58,15 +60,35 @@
 // any peice of text is allowed here											|
 // -----------------------------------------------------------------------------+
 #define INFORMATION(what, body, ...){											\
-	INF("%((INFORMATION)%):" );													\
+	INF("%((INFORMATION)%): ");													\
 	INF(what, __VA_ARGS__    );													\
 	{ body }																	\
 }
+#define INFORMATION_LN(inset,...) { INF(inset); INF(__VA_ARGS__); }
+
+// -----------------------------------------------------------------------------+
+// <   DEBUG   >: this is a statement explaining about information (one line)	|
+//		<about> : <description>													|
+// any peice of text is allowed here											|
+// -----------------------------------------------------------------------------+
+#define DEBUG(what, body, ...){													\
+	DBG("%(<   DEBUG   >%): ");													\
+	DBG(what, __VA_ARGS__    );													\
+	{ body }																	\
+}
+#define DEBUG_LN(inset,...) { DBG(inset); DBG(__VA_ARGS__); }
 
 // in short idea boils down to displaying everything as required by user set of
 // decoreated lines (one after another) in manner laid out as shown before. note
 // you are allowd to add as many lines as you require and even pick default lines
 // that you dont or you do require.
 
+// some default exceptions and assertion methods that have been tailored for this
+// project, if this file is to be exported to other projects consider picking 
+// specific functions that are required by other projects, or just ignore
+
+void DEBUG_ASSERTION(bool cond, const char* expression, const char* description);
+void WARNS_ASSERTION(bool cond, const char* expression, const char* description);
+void FATAL_ASSERTION(bool cond, const char* expression, const char* description);
 
 #endif
