@@ -13,7 +13,7 @@ enum ASSEMBLER_ARGUMENT_TYPE argparse_get_type_for(const char* flag){
         return ARGUMENT_HLP;
 
     if (flag[0] == '-') {
-        ARGPARSE_FLAG_NOT_RECOGNIZED_EXCEPTION(flag);
+        // TODO: raise WARNING about unused flag
         return ARGUMENT_NONE;
     }
 
@@ -24,7 +24,7 @@ enum ASSEMBLER_ARGUMENT_TYPE argparse_get_type_for(const char* flag){
          flag[size-3] == 'a' && flag[size-4] == '.'))
         return ARGUMENT_INP;
 
-    ARGPARSE_FILE_NOT_RECOGNIZED_EXCEPTION(flag);
+    // TODO: raise WARNING about unrecognized item in argument
     return ARGUMENT_NONE;
 }
 
@@ -43,11 +43,12 @@ struct ASSEMBLER_ARGUMENT argparse_argument_format (const char* value){
         strcmp("elf",value) == 0 ||
         strcmp("exe",value) == 0 ) == false
     ) {
-        ARGPARSE_FLAG_ARG_INCORRECT_EXCEPTION(value, "-[-f]ormat", 3,
-            "bin", "to generate binary file containing direct translation",
-            "elf", "containing debug information and symbols for script",
-            "exe", "to generate a platform dependent executable for script"
-        );
+        // TODO: give EXCEPTION about incorrect format specfifed
+        //ARGPARSE_FLAG_ARG_INCORRECT_EXCEPTION(value, "-[-f]ormat", 3,
+        //    "bin", "to generate binary file containing direct translation",
+        //    "elf", "containing debug information and symbols for script",
+        //    "exe", "to generate a platform dependent executable for script"
+        //);
     }
 
     return (struct ASSEMBLER_ARGUMENT){
@@ -55,7 +56,8 @@ struct ASSEMBLER_ARGUMENT argparse_argument_format (const char* value){
     };
 }
 struct ASSEMBLER_ARGUMENT argparse_argument_mapping(const char* value){
-    FUNCTION_NOT_IMPLEMENTED_EXCEPTION(FNI_ARGUMENTS);
+    // FUNCTION_NOT_IMPLEMENTED_EXCEPTION(FNI_ARGUMENTS);
+    // TODO: throw function not implemented exception
 }
 struct ASSEMBLER_ARGUMENT argparse_argument_help   (const char* value){
     return (struct ASSEMBLER_ARGUMENT){

@@ -180,9 +180,4 @@ int lfprintf(LogLevel level, FILE* stream, const char* format, ...);
 #define ERROR(...)		ERR("%(Error%): "	);	ERR(__VA_ARGS__);
 #define FATAL(...)		FAT("%(Fatal%): "	);	FAT(__VA_ARGS__);
 
-// notion of logging groups and associated notion of EXCEPTIONS as a group of logs
-#define EXCEPTION(what, body, ... ) {ERR("%(Exception%): "); ERR(what, __VA_ARGS__); body}
-#define ASSERTION(what, pass, fail) {if (what) {pass} else {fail}
-
 #endif
-
