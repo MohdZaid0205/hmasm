@@ -12,7 +12,7 @@
 // selectively to create custom logging level as per your requirement by using
 // bitwise OR operations such as (LEVEL_LOG | LEVEL_INF) shows LOGs and INFOs
 typedef enum LOGGER_LEVEL_OPTION {
-	LEVEL_NO  = 0b000000,		// NONE or NO		are allowed to pass.
+	LEVEL_NONE= 0b000000,		// NONE or NO		are allowed to pass.
 	LEVEL_LOG = 0b000001,		// LOGs				are allowed to pass.
 	LEVEL_INF = 0b000010,		// INFORMATIONs		are allowed to pass.
 	LEVEL_DBG = 0b000100,		// DEBUGs			are allowed to pass.
