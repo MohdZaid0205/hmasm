@@ -170,14 +170,5 @@ int lfprintf(LogLevel level, FILE* stream, const char* format, ...);
 #define ERR_IF(condition, ...) if (condition) { ERR(__VA_ARGS__) }
 #define FAT_IF(condition, ...) if (condition) { FAT(__VA_ARGS__) }
 
-// helper lines to put through code in order to display required behaviour without
-// explicitly calling methods each time it is required of you to display something
-
-#define LOGGING(...)	LOG("%(logging%): "	);	LOG(__VA_ARGS__);
-#define INFO(...)		INF("%(Info%): "	);	INF(__VA_ARGS__);
-#define DEBUG(...)		DBG("%(Debug%): "	);	DBG(__VA_ARGS__);
-#define WARNING(...)	WRN("%(Warning%): "	);	WRN(__VA_ARGS__);
-#define ERROR(...)		ERR("%(Error%): "	);	ERR(__VA_ARGS__);
-#define FATAL(...)		FAT("%(Fatal%): "	);	FAT(__VA_ARGS__);
 
 #endif

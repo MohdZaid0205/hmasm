@@ -24,23 +24,44 @@
 // -----------------------------------------------------------------------------+
 
 
-// [ IDEA ] --------------------------------------------------------------------+
-//																				|
+// -----------------------------------------------------------------------------+
 // { EXCEPTION }: this is a statement explaining about exception (one line)		|
 //		<this is a line refrencing where exception came from>:<line>			|
 //		this statement about exception and highlighting <EXCEPTION_TYPE>		|
 //		... (other lines if you prefer)											|
 // line explaining what to do if you experience this exception, this line is all|
 // owed to be multiline. <detailed-fix-description>								|
-//																				|
+// -----------------------------------------------------------------------------+
+#define EXCEPTION(what, body, ...) {											\
+	ERR("%([ EXCEPTION ]%): ");													\
+	ERR(what, __VA_ARGS__	 );													\
+	{ body }																	\
+}
+
+// -----------------------------------------------------------------------------+
 // {  WARNING  }: this is a statement explaining about warning (one line)		|
 //		<this is a line refrencing where exception came from>:<line>			|
 //		this statement about warnings and highlighting <WARNING_TYPE>			|
 //		... (other lines if you prefer)											|
 // line explaining, why this warning is allowed to pass, and wat to do in order |
 // to avoid this warning.														|
-//																				|
 // -----------------------------------------------------------------------------+
+#define WARNING(what, body, ...){												\
+	WRN("%({  WARNING  }%): ");													\
+	WRN(what, __VA_ARGS__    );													\
+	{ body }																	\
+}
+
+// -----------------------------------------------------------------------------+
+// {INFORMATION}: this is a statement explaining about information (one line)	|
+//		<about> : <description>													|
+// any peice of text is allowed here											|
+// -----------------------------------------------------------------------------+
+#define INFORMATION(what, body, ...){											\
+	INF("%((INFORMATION)%):" );													\
+	INF(what, __VA_ARGS__    );													\
+	{ body }																	\
+}
 
 // in short idea boils down to displaying everything as required by user set of
 // decoreated lines (one after another) in manner laid out as shown before. note
