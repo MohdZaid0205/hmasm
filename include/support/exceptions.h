@@ -38,6 +38,7 @@
 	{ body }																	\
 }
 #define EXCEPTION_LN(inset,...) { ERR(inset); ERR(__VA_ARGS__); }
+#define EXCEPTION_EN(...) { ERR("%(---> %)"); ERR(__VA_ARGS__); }
 
 // -----------------------------------------------------------------------------+
 // {  WARNING  }: this is a statement explaining about warning (one line)		|
@@ -53,6 +54,7 @@
 	{ body }																	\
 }
 #define WARNING_LN(inset,...) { WRN(inset); WRN(__VA_ARGS__); }
+#define WARNING_EN(...) { WRN("%(---> %)"); WRN(__VA_ARGS__); }
 
 // -----------------------------------------------------------------------------+
 // {INFORMATION}: this is a statement explaining about information (one line)	|
@@ -65,6 +67,7 @@
 	{ body }																	\
 }
 #define INFORMATION_LN(inset,...) { INF(inset); INF(__VA_ARGS__); }
+#define INFORMATION_EN(...) { INF("%(---> %)"); INF(__VA_ARGS__); }
 
 // -----------------------------------------------------------------------------+
 // <   DEBUG   >: this is a statement explaining about information (one line)	|
@@ -77,6 +80,7 @@
 	{ body }																	\
 }
 #define DEBUG_LN(inset,...) { DBG(inset); DBG(__VA_ARGS__); }
+#define DEBUG_EN(...) { DBG("%(---> %)"); DBG(__VA_ARGS__); }
 
 // in short idea boils down to displaying everything as required by user set of
 // decoreated lines (one after another) in manner laid out as shown before. note

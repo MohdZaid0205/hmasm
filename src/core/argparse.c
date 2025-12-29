@@ -1,57 +1,43 @@
 #include "argparse.h"
 #include "exceptions.h"
+#include "strdump.h"
 
 // WARNINGS and EXCEPTIONS (no external handler for these functions are required)
 
 #define INVALID_FLAG_WARNING(flag)												\
-	WARNING("assembler found an invalid flag %(%s)%\n", {						\
-		WARNING_LN("\t", "while trying to resolve flag type, found %(%s%)\n",	\
-			flag);																\
-		WARNING_LN("\t", "given flag is not valid:%(INVALID_FLAG_PASSED%)\n");	\
-		WARNING_LN("->", "%(IGNORING%) flag %(%s%), flag will not be used\n",	\
-			flag);	\
+	WARNING(LEXER_IFW_DES, {													\
+		WARNING_LN(INSET, LEXER_IFW_LN1, flag);									\
+		WARNING_EN(INSET, LEXER_IFW_END, flag);									\
 	}, flag);
 
-#define INVALID_FILE_CONTEXT_WARNING(file, extension, context, allowed_msg)		\
-	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
-		WARNING_LN("\t", "while trying to resolve %s, found %(%s%)\n",			\
-			context, file);														\
-		WARNING_LN("\t", "given file is not valid:%(INVALID_FILE_EXT%)\n");		\
-		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
-		allowed_msg																\
-		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
-			file);																\
-	}, extension);
+#define INVALID_FILE_CONTEXT_WARNING(type, file, extension, body)				\
+	WARNING(LEXER_IFCW_DES, {													\
+		WARNING_LN(INSET, LEXER_IFCW_LN1, type, extension);						\
+		WARNING_LN(INSET, LEXER_IFCW_LN2, type);								\
+		INFORMATION_LN(INSET, LEXER_IFCW_LN3);									\
+		{ body }																\
+		WARNING_EN(LEXER_IFCW_END, file);										\
+	}, type);
 
 #define INVALID_SRC_WARNING(file, extension)									\
-	INVALID_FILE_CONTEXT_WARNING(file, extension, "input file type",			\
-		INFORMATION_LN("\t\t", "%(.asm%)/%(.s%) : source file containing asm"); \
-		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermediate representation");	\
+	INVALID_FILE_CONTEXT_WARNING("SOURCE", file, extension,						\
+		INFORMATION_LN(INSET2, LEXER_IFCW_VOP, 1, LEXER_ISW_O11, LEXER_ISW_O12);\
+		INFORMATION_LN(INSET2, LEXER_IFCW_VOP, 2, LEXER_ISW_O21, LEXER_ISW_O22);\
 	)
 
 #define INVALID_OUT_WARNING(file, extension)									\
-	INVALID_FILE_CONTEXT_WARNING(file, extension, "output file type",			\
-		INFORMATION_LN("\t\t", "%(.exe%) : executable file with proper fmt\t"); \
-		INFORMATION_LN("\t\t", "%(.elf%) : (linux only) output for elf fmt\n"); \
-		INFORMATION_LN("\t\t", "%(.bin%) : binary (directly compiled!) fmt\n"); \
-		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermediate representation");	\
+	INVALID_FILE_CONTEXT_WARNING("OUTPUT", file, extension,						\
+		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 1, LEXER_IOW_O11, LEXER_IOW_O12);\
+		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 2, LEXER_IOW_O21, LEXER_IOW_O22);\
+		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 3, LEXER_IOW_O31, LEXER_IOW_O32);\
 	)
 
 #define INVALID_PRAM_WARNING(flag, pram, expect, action)						\
-	WARNING("assembler found an invalid parameter for flag %(%s)%\n", {			\
-		WARNING_LN("\t", "while trying to resolve pram, found %(%s%) expected " \
-			"%(%s%)\n", pram, expect);											\
-		WARNING_LN("\t", "given argument is not valid:%(INVALID_PRAM%)\n");		\
-		WARNING_LN("->", "%(%s%)\n", action);									\
+	WARNING(LEXER_IPW_DES, {													\
+		WARNING_LN(INSET, LEXER_IPW_LN1, pram, expect);							\
+		WARNING_LN(INSET, LEXER_IPW_LN2);										\
+		WARNING_EN(LEXER_IPW_END, action);										\
 	}, flag);
-
-#define INVALID_OPTION_WARNING(flag, value, valid_options)						\
-	WARNING("assembler found an invalid option value %(%s)%\n", {				\
-		WARNING_LN("\t", "for flag %(%s%), found value %(%s%)\n", flag, value);	\
-		INFORMATION_LN("\t", "supported options are:\n");						\
-		valid_options															\
-		WARNING_LN("->", "%(IGNORING%) setting, using default configuration\n");\
-	}, value);
 
 
 // Global VARIABLES defined to store result for argparse (globally)
@@ -135,8 +121,6 @@ bool _argparse_parse_against_output_file(const char* string) {
 
 _warn_about_extension:
 	INVALID_OUT_WARNING(string, extension ? extension : "<NULL>");
-	return false;
-}
 	return false;
 }
 
