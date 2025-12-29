@@ -16,9 +16,23 @@
 	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
 		WARNING_LN("\t", "while trying to resolve file type, found %(%s%)\n",	\
 			file);																\
-		WARNING_LN("\t", "given file is not valid:%(INVALID_FILE_PASSED%)\n");	\
+		WARNING_LN("\t", "given file is not valid:%(INVALID_INPUT_FILE%)\n");	\
 		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
 		INFORMATION_LN("\t\t", "%(.asm%)/%(.s%) : source file containing asm"); \
+		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermideate represntation file");\
+		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
+			file);																\
+	}, extension);
+
+#define INVALID_OUT_WARNING(file, extension)									\
+	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
+		WARNING_LN("\t", "while trying to resolve file type, found %(%s%)\n",	\
+			file);																\
+		WARNING_LN("\t", "given file is not valid:%(INVALID_OUTPUT_FILE%)\n");	\
+		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
+		INFORMATION_LN("\t\t", "%(.exe%) : executable file with proper fmt\t"); \
+		INFORMATION_LN("\t\t", "%(.elf%) : (linux only) output for elf fmt\n"); \
+		INFORMATION_LN("\t\t", "%(.bin%) : binary (directly compiled!) fmt\n"); \
 		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermideate represntation file");\
 		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
 			file);																\
@@ -105,13 +119,18 @@ bool _argparse_parse_against_output_file(const char* string) {
 	char* extension = strrchr(string, '.');
 
 	if (extension == NULL) {
-		
-		return true;
+		INVALID_OUT_WARNING(string, "<NO_EXTENSION>");
+		return false;
 	}
 
-	return (strcmp(extension, ".exe") == 0 ||
-			strcmp(extension, ".asm") == 0 ||
-			strcmp(extension, ".ir" ) == 0 );
+	if (strcmp(extension, ".exe") == 0 ||
+		strcmp(extension, ".elf") == 0 ||
+		strcmp(extension, ".bin") == 0 ||
+		strcmp(extension, ".ir" ) == 0 )
+		return true;
+
+	INVALID_OUT_WARNING(string, extension);
+	return false;
 }
 
 bool _argparse_parse_against_fmt_type(const char* string);
