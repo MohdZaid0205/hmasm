@@ -12,39 +12,47 @@
 			flag);	\
 	}, flag);
 
-#define INVALID_SRC_WARNING(file, extension)									\
+#define INVALID_FILE_CONTEXT_WARNING(file, extension, context, allowed_msg)		\
 	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
-		WARNING_LN("\t", "while trying to resolve file type, found %(%s%)\n",	\
-			file);																\
-		WARNING_LN("\t", "given file is not valid:%(INVALID_INPUT_FILE%)\n");	\
+		WARNING_LN("\t", "while trying to resolve %s, found %(%s%)\n",			\
+			context, file);														\
+		WARNING_LN("\t", "given file is not valid:%(INVALID_FILE_EXT%)\n");		\
 		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
-		INFORMATION_LN("\t\t", "%(.asm%)/%(.s%) : source file containing asm"); \
-		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermideate represntation file");\
+		allowed_msg																\
 		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
 			file);																\
 	}, extension);
 
+#define INVALID_SRC_WARNING(file, extension)									\
+	INVALID_FILE_CONTEXT_WARNING(file, extension, "input file type",			\
+		INFORMATION_LN("\t\t", "%(.asm%)/%(.s%) : source file containing asm"); \
+		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermediate representation");	\
+	)
+
 #define INVALID_OUT_WARNING(file, extension)									\
-	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
-		WARNING_LN("\t", "while trying to resolve file type, found %(%s%)\n",	\
-			file);																\
-		WARNING_LN("\t", "given file is not valid:%(INVALID_OUTPUT_FILE%)\n");	\
-		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
+	INVALID_FILE_CONTEXT_WARNING(file, extension, "output file type",			\
 		INFORMATION_LN("\t\t", "%(.exe%) : executable file with proper fmt\t"); \
 		INFORMATION_LN("\t\t", "%(.elf%) : (linux only) output for elf fmt\n"); \
 		INFORMATION_LN("\t\t", "%(.bin%) : binary (directly compiled!) fmt\n"); \
-		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermideate represntation file");\
-		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
-			file);																\
-	}, extension);
+		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermediate representation");	\
+	)
 
 #define INVALID_PRAM_WARNING(flag, pram, expect, action)						\
 	WARNING("assembler found an invalid parameter for flag %(%s)%\n", {			\
 		WARNING_LN("\t", "while trying to resolve pram, found %(%s%) expected " \
-			"%(%s%)\n", pram, expect);																\
-		WARNING_LN("\t", "given flag is not valid:%(INVALID_PRAM_PASSED%)\n");	\
+			"%(%s%)\n", pram, expect);											\
+		WARNING_LN("\t", "given argument is not valid:%(INVALID_PRAM%)\n");		\
 		WARNING_LN("->", "%(%s%)\n", action);									\
 	}, flag);
+
+#define INVALID_OPTION_WARNING(flag, value, valid_options)						\
+	WARNING("assembler found an invalid option value %(%s)%\n", {				\
+		WARNING_LN("\t", "for flag %(%s%), found value %(%s%)\n", flag, value);	\
+		INFORMATION_LN("\t", "supported options are:\n");						\
+		valid_options															\
+		WARNING_LN("->", "%(IGNORING%) setting, using default configuration\n");\
+	}, value);
+
 
 // Global VARIABLES defined to store result for argparse (globally)
 char* _argparse_source_file = NULL;
@@ -103,9 +111,13 @@ bool _argparse_parse_against_source_file(const char* string) {
 		return false;
 	}
 
-	return (strcmp(extension, ".s"  ) == 0 ||
+	if (strcmp(extension, ".s"  ) == 0 ||
 			strcmp(extension, ".asm") == 0 ||
-			strcmp(extension, ".ir" ) == 0 );
+		strcmp(extension, ".ir" ) == 0 )
+		return true;
+
+	INVALID_SRC_WARNING(string, extension);
+	return false;
 }
 
 bool _argparse_parse_against_output_file(const char* string) {
