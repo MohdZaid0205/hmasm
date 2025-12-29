@@ -1,16 +1,18 @@
 #include "argparse.h"
 #include "exceptions.h"
 
+// WARNINGS and EXCEPTIONS (no external handler for these functions are required)
+
 #define INVALID_FLAG_WARNING(flag)												\
 	WARNING("assembler found an invalid flag %(%s)%\n", {						\
 		WARNING_LN("\t", "while trying to resolve flag type, found %(%s%)\n",	\
 			flag);																\
 		WARNING_LN("\t", "given flag is not valid:%(INVALID_FLAG_PASSED%)\n");	\
-		WARNING_LN("\t", "%(IGNORING%) flag %(%s%), flag will not be used\n",	\
+		WARNING_LN("->", "%(IGNORING%) flag %(%s%), flag will not be used\n",	\
 			flag);	\
 	}, flag);
 
-#define INVALID_FILE_WARNING(file, extension)									\
+#define INVALID_SRC_WARNING(file, extension)									\
 	WARNING("assembler found an invalid file extension %(%s)%\n", {				\
 		WARNING_LN("\t", "while trying to resolve file type, found %(%s%)\n",	\
 			file);																\
@@ -18,9 +20,28 @@
 		INFORMATION_LN("\t", "only allowed files are with extensions:\n");		\
 		INFORMATION_LN("\t\t", "%(.asm%)/%(.s%) : source file containing asm"); \
 		INFORMATION_LN("\t\t", "%(.asm.ir%) : intermideate represntation file");\
-		WARNING_LN("\t", "%(IGNORING%) file %(%s%), file will not be used\n",	\
+		WARNING_LN("->", "%(IGNORING%) file %(%s%), file will not be used\n",	\
 			file);																\
 	}, extension);
+
+#define INVALID_PRAM_WARNING(flag, pram, expect, action)						\
+	WARNING("assembler found an invalid parameter for flag %(%s)%\n", {			\
+		WARNING_LN("\t", "while trying to resolve pram, found %(%s%) expected " \
+			"%(%s%)\n", pram, expect);																\
+		WARNING_LN("\t", "given flag is not valid:%(INVALID_PRAM_PASSED%)\n");	\
+		WARNING_LN("->", "%(%s%)\n", action);									\
+	}, flag);
+
+// Global VARIABLES defined to store result for argparse (globally)
+char* _argparse_source_file = NULL;
+char* _argparse_output_file = NULL;
+char* _argparse_fmt_type	= NULL;        // DEPRICATED: just for compatiblity
+char* _argparse_isa_type	= NULL;        // DEPRICATED: just for compatiblity
+bool  _argparse_req_help	= false;
+bool  _argparse_asm_into_iR = false;
+bool  _argparse_asm_from_iR = false;
+
+// FUNCTION definitions for private and public functions defined in argparse.h
 
 enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 
@@ -46,7 +67,7 @@ enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 	char* extension = strrchr(flag, '.');
 	
 	if (extension == NULL) {
-		INVALID_FILE_WARNING(flag, "<NO_EXTENSION>");
+		INVALID_SRC_WARNING(flag, "<NO_EXTENSION>");
 		return ARGUMENT_NONE;
 	}
 
@@ -55,6 +76,46 @@ enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 		strcmp(extension, ".ir" ) == 0  )
 		return ARGUMENT_INP;
 	
-	INVALID_FILE_WARNING(flag, extension);
+	INVALID_SRC_WARNING(flag, extension);
 	return ARGUMENT_NONE;
 }
+
+
+bool _argparse_parse_against_source_file(const char* string) {
+	char* extension = strrchr(string, '.');
+
+	if (extension == NULL) {
+		INVALID_SRC_WARNING(string, "<NO_EXTENSION>");
+		return false;
+	}
+
+	return (strcmp(extension, ".s"  ) == 0 ||
+			strcmp(extension, ".asm") == 0 ||
+			strcmp(extension, ".ir" ) == 0 );
+}
+
+bool _argparse_parse_against_output_file(const char* string) {
+	
+	if (strncmp(string, "-", 1) == 0) {
+		INVALID_PRAM_WARNING("-[-o]ut", string, "OUTPUT FILE",
+			"PARAMETER < > and FLAG -[-o]ut has been IGNORED");
+		return false;
+	}
+	
+	char* extension = strrchr(string, '.');
+
+	if (extension == NULL) {
+		
+		return true;
+	}
+
+	return (strcmp(extension, ".exe") == 0 ||
+			strcmp(extension, ".asm") == 0 ||
+			strcmp(extension, ".ir" ) == 0 );
+}
+
+bool _argparse_parse_against_fmt_type(const char* string);
+bool _argparse_parse_against_isa_type(const char* string);
+bool _argparse_parse_against_req_help(const char* string);
+bool _argparse_parse_against_asm_into_iR(const char* string);
+bool _argparse_parse_against_asm_from_iR(const char* string);
