@@ -67,38 +67,33 @@ bool  _argparse_asm_from_iR = false;
 
 enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 
-	if (strcmp(flag, "-h") == 0 || strcmp(flag, "--help"  ) == 0)
-		return ARGUMENT_HLP;
-	if (strcmp(flag, "-o") == 0 || strcmp(flag, "--out"   ) == 0)
-		return ARGUMENT_OUT;
-	if (strcmp(flag, "-f") == 0 || strcmp(flag, "--format") == 0)
-		return ARGUMENT_FMT;
-	if (strcmp(flag, "-i") == 0 || strcmp(flag, "--isa"   ) == 0)
-		return ARGUMENT_ISA;
+	if (strcmp(flag, "-h") == 0 || strcmp(flag, "--help"  ) == 0) return ARGUMENT_HLP;
+	if (strcmp(flag, "-o") == 0 || strcmp(flag, "--out"   ) == 0) return ARGUMENT_OUT;
+	if (strcmp(flag, "-f") == 0 || strcmp(flag, "--format") == 0) return ARGUMENT_FMT;
+	if (strcmp(flag, "-i") == 0 || strcmp(flag, "--isa"   ) == 0) return ARGUMENT_ISA;
 
-	if (strcmp(flag, "--into-ir") == 0)
-		return ARGUMENT_TIR;
-	if (strcmp(flag, "--from-ir") == 0)
-		return ARGUMENT_FIR;
+	if (strcmp(flag, "--into-ir") == 0) return ARGUMENT_TIR;
+	if (strcmp(flag, "--from-ir") == 0) return ARGUMENT_FIR;
 
-	if (strncmp(flag, "-", 1) == 0){
-		INVALID_FLAG_WARNING(flag);
-		return ARGUMENT_NONE;
-	}
+	if (strncmp(flag, "-", 1) == 0)
+		goto _warn_about_flags;
 
 	char* extension = strrchr(flag, '.');
 	
-	if (extension == NULL) {
-		INVALID_SRC_WARNING(flag, "<NO_EXTENSION>");
-		return ARGUMENT_NONE;
-	}
+	if (extension == NULL) 
+		goto _warn_about_extension;
 
 	if (strcmp(extension, ".s"  ) == 0 || 
 		strcmp(extension, ".asm") == 0 ||
 		strcmp(extension, ".ir" ) == 0  )
 		return ARGUMENT_INP;
 	
-	INVALID_SRC_WARNING(flag, extension);
+_warn_about_extension:
+	INVALID_SRC_WARNING(flag, extension ? extension : "<NULL>");
+	return ARGUMENT_NONE;
+
+_warn_about_flags:
+	INVALID_FLAG_WARNING(flag);
 	return ARGUMENT_NONE;
 }
 
@@ -106,17 +101,16 @@ enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 bool _argparse_parse_against_source_file(const char* string) {
 	char* extension = strrchr(string, '.');
 
-	if (extension == NULL) {
-		INVALID_SRC_WARNING(string, "<NO_EXTENSION>");
-		return false;
-	}
+	if (extension == NULL)
+		goto _warn_invalid_source;
 
 	if (strcmp(extension, ".s"  ) == 0 ||
 			strcmp(extension, ".asm") == 0 ||
 		strcmp(extension, ".ir" ) == 0 )
 		return true;
 
-	INVALID_SRC_WARNING(string, extension);
+_warn_invalid_source:
+	INVALID_SRC_WARNING(string, extension ? extension : "<NULL>");
 	return false;
 }
 
@@ -130,10 +124,8 @@ bool _argparse_parse_against_output_file(const char* string) {
 	
 	char* extension = strrchr(string, '.');
 
-	if (extension == NULL) {
-		INVALID_OUT_WARNING(string, "<NO_EXTENSION>");
-		return false;
-	}
+	if (extension == NULL)
+		goto _warn_about_extension;
 
 	if (strcmp(extension, ".exe") == 0 ||
 		strcmp(extension, ".elf") == 0 ||
@@ -141,7 +133,10 @@ bool _argparse_parse_against_output_file(const char* string) {
 		strcmp(extension, ".ir" ) == 0 )
 		return true;
 
-	INVALID_OUT_WARNING(string, extension);
+_warn_about_extension:
+	INVALID_OUT_WARNING(string, extension ? extension : "<NULL>");
+	return false;
+}
 	return false;
 }
 
