@@ -91,7 +91,7 @@ bool _argparse_parse_against_source_file(const char* string) {
 		goto _warn_invalid_source;
 
 	if (strcmp(extension, ".s"  ) == 0 ||
-			strcmp(extension, ".asm") == 0 ||
+		strcmp(extension, ".asm") == 0 ||
 		strcmp(extension, ".ir" ) == 0 )
 		return true;
 
@@ -102,11 +102,8 @@ _warn_invalid_source:
 
 bool _argparse_parse_against_output_file(const char* string) {
 	
-	if (strncmp(string, "-", 1) == 0) {
-		INVALID_PRAM_WARNING("-[-o]ut", string, "OUTPUT FILE",
-			"PARAMETER < > and FLAG -[-o]ut has been IGNORED");
-		return false;
-	}
+	if (strncmp(string, "-", 1) == 0)
+		goto _warn_invalid_pram;
 	
 	char* extension = strrchr(string, '.');
 
@@ -121,6 +118,11 @@ bool _argparse_parse_against_output_file(const char* string) {
 
 _warn_about_extension:
 	INVALID_OUT_WARNING(string, extension ? extension : "<NULL>");
+	return false;
+
+_warn_invalid_pram:
+	INVALID_PRAM_WARNING("-[-o]ut", string, "OUTPUT FILE",
+		"PARAMETER < > and FLAG -[-o]ut has been IGNORED");
 	return false;
 }
 
