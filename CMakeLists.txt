@@ -22,6 +22,8 @@ set(PROJ_ISA_SRC_DIR "${PROJ_SRC_DIR}/isa"                  )
 
 file(GLOB PROJ_SRC_FILES "${PROJ_CORE_SRC_DIR}/*.c" "${PROJ_SUPPORT_SRC_DIR}/*.c")
 file(GLOB PROJ_INC_FILES "${PROJ_CORE_INC_DIR}/*.h" "${PROJ_SUPPORT_INC_DIR}/*.h")
+file(GLOB PROJ_ISA_FILES "${PROJ_ISA_SRC_DIR}/*.c")
+file(GLOB PROJ_FMT_FILES "${PROJ_FMT_SRC_DIR}/*.c")
 
 # by default we compile all default isa(s) and format(s) otherwise user defined
 set(DEFINE_FMT "elf;pc;bin"         )
@@ -46,37 +48,16 @@ else()
     set(TARGET_INSTALL_PATH "${CMAKE_SOURCE_DIR}/bin")
 endif()
 
-# BUILD and LOG about each target during building such target and install to path
-foreach(FMT ${FMT_TO_BUILD})
-    foreach(ISA ${ISA_TO_BUILD})
-        
-        # architecture and format specific files that are need for compilation
-        set(ISA_FILE "${PROJ_ISA_SRC_DIR}/isa-${ISA}.c"     )
-        set(FMT_FILE "${PROJ_FMT_SRC_DIR}/fmt-${FMT}.c"  )
-
-        if (EXISTS ${ISA_FILE} AND EXISTS ${FMT_FILE})
-
-            set(TARGET_NAME "hmasm-${FMT}-${ISA}")
-            add_executable(${TARGET_NAME} ${ISA_FILE} ${FMT_FILE}   )
-            target_sources(${TARGET_NAME} PRIVATE ${PROJ_SRC_FILES} )
-            target_sources(${TARGET_NAME} PRIVATE ${PROJ_INC_FILES} )
-            target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_INC_DIR}       )
-            target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_CORE_INC_DIR}  )
-            target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_SUPPORT_INC_DIR})
-            install(TARGETS ${TARGET_NAME} DESTINATION ${TARGET_INSTALL_PATH})
-
-        else()
-            if (NOT EXISTS ${ISA_FILE})
-                message(FATAL_ERROR "cannot find for specified isa ${ISA} at location ${ISA_FILE}")
-            endif()
-
-            if (NOT EXISTS ${FMT_FILE})
-                message(FATAL_ERROR "cannot find for specified format ${FMT} at location ${FMT_FILE}")
-            endif()
-        endif()
-
-    endforeach()
-endforeach()
+set(TARGET_NAME "hmasm")
+add_executable(${TARGET_NAME} )
+target_sources(${TARGET_NAME} PRIVATE ${PROJ_SRC_FILES} )
+target_sources(${TARGET_NAME} PRIVATE ${PROJ_INC_FILES} )
+target_sources(${TARGET_NAME} PRIVATE ${PROJ_ISA_FILES} )
+target_sources(${TARGET_NAME} PRIVATE ${PROJ_FMT_FILES} )
+target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_INC_DIR}       )
+target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_CORE_INC_DIR}  )
+target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_SUPPORT_INC_DIR})
+install(TARGETS ${TARGET_NAME} DESTINATION ${TARGET_INSTALL_PATH})
 
 # For predefined targets put them all into a folder (if possible)
 foreach(predef_target ALL_BUILD ZERO_CHECK INSTALL PACKAGE RUN_TESTS)

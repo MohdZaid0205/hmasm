@@ -1,7 +1,15 @@
 #ifndef ASSEMBLER_FMT_API_H
 #define ASSEMBLER_FMT_API_H
 
-extern const char* assembler_format_name;
-extern const char* assembler_do_format(const char* what);
+typedef struct ASSEMBLER_FMT{
+    const char* name;
+    const char* desc;
+    void (*format)(void);
+} AssemblerFMT;
+
+extern const struct ASSEMBLER_FMT* supported_fmt_array[32];
+extern unsigned int supported_fmt_count;
+
+void register_fmt(const struct ASSEMBLER_FMT* fmt);
 
 #endif

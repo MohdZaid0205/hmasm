@@ -1,6 +1,18 @@
 #include "fmt.h"
+#include "pch.h"
 
-const char* assembler_format_name = "pc";
-const char* assembler_do_format(const char* what){
-    return assembler_format_name;
+void pc_format();
+
+static const struct ASSEMBLER_FMT formatter = {
+    .name = "pc",
+    .desc = "windows executable format",
+    .format = pc_format,
+};
+
+void pc_format(){
+    printf("Helo PC\n");
+}
+
+__attribute__((constructor)) static void register_pc(){
+    register_fmt(&formatter);
 }

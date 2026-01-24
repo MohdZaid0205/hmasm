@@ -1,6 +1,18 @@
 #include "fmt.h"
+#include "pch.h"
 
-const char* assembler_format_name = "bin";
-const char* assembler_do_format(const char* what){
-    return assembler_format_name;
+void bin_format();
+
+static const struct ASSEMBLER_FMT formatter = {
+    .name = "bin",
+    .desc = "format that ommits raw binary file",
+    .format = bin_format,
+};
+
+void bin_format(){
+    printf("Helo BIN\n");
+}
+
+__attribute__((constructor)) static void register_bin(){
+    register_fmt(&formatter);
 }
