@@ -10,7 +10,7 @@
 // argparse.h INVALID_FLAG_WARNING(flag)
 #define LEXER_IFW_DES "Assembler found an invalid flag: %('%s'%)" NLINE
 #define LEXER_IFW_LN1 "why? :raise:warning:=> %(INVALID_FLAG_WARNING%)" NLINE
-#define LEXER_IFW_END "Given flag will be %(IGNORED%)." NLINE NLINE
+#define LEXER_IFW_END "Given flag %(%s%) will be %(IGNORED%)." NLINE NLINE
 
 // argparse.h INVALID_FILE_CONTEXT_WARNING(type, file, extension, body)
 #define LEXER_IFCW_DES "assembler found an invalid file extension for %(%s%)" NLINE

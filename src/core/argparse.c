@@ -7,7 +7,7 @@
 #define INVALID_FLAG_WARNING(flag)												\
 	WARNING(LEXER_IFW_DES, {													\
 		WARNING_LN(INSET, LEXER_IFW_LN1, flag);									\
-		WARNING_EN(INSET, LEXER_IFW_END, flag);									\
+		WARNING_EN(LEXER_IFW_END, flag);									    \
 	}, flag);
 
 #define INVALID_FILE_CONTEXT_WARNING(type, file, extension, body)				\
