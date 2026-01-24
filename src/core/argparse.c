@@ -1,44 +1,63 @@
 #include "argparse.h"
 #include "exceptions.h"
+#include "fmt.h"
+#include "isa.h"
 #include "strdump.h"
 
 // WARNINGS and EXCEPTIONS (no external handler for these functions are required)
 
 #define INVALID_FLAG_WARNING(flag)												\
-	WARNING(LEXER_IFW_DES, {													\
-		WARNING_LN(INSET, LEXER_IFW_LN1, flag);									\
-		WARNING_EN(LEXER_IFW_END, flag);									    \
-	}, flag);
+	WARNING(ARGVS_IFW_DES, {													\
+		WARNING_LN(INSET, ARGVS_IFW_LN1, flag);									\
+		WARNING_EN(ARGVS_IFW_END, flag);									    \
+	}, flag)
 
 #define INVALID_FILE_CONTEXT_WARNING(type, file, extension, body)				\
-	WARNING(LEXER_IFCW_DES, {													\
-		WARNING_LN(INSET, LEXER_IFCW_LN1, type, extension);						\
-		WARNING_LN(INSET, LEXER_IFCW_LN2, type);								\
-		INFORMATION_LN(INSET, LEXER_IFCW_LN3);									\
+	WARNING(ARGVS_IFCW_DES, {													\
+		WARNING_LN(INSET, ARGVS_IFCW_LN1, type, extension);						\
+		WARNING_LN(INSET, ARGVS_IFCW_LN2, type);								\
+		INFORMATION_LN(INSET, ARGVS_IFCW_LN3);									\
 		{ body }																\
-		WARNING_EN(LEXER_IFCW_END, file);										\
-	}, type);
+		WARNING_EN(ARGVS_IFCW_END, file);										\
+	}, type)
 
 #define INVALID_SRC_WARNING(file, extension)									\
 	INVALID_FILE_CONTEXT_WARNING("SOURCE", file, extension,						\
-		INFORMATION_LN(INSET2, LEXER_IFCW_VOP, 1, LEXER_ISW_O11, LEXER_ISW_O12);\
-		INFORMATION_LN(INSET2, LEXER_IFCW_VOP, 2, LEXER_ISW_O21, LEXER_ISW_O22);\
+		INFORMATION_LN(INSET2, ARGVS_IFCW_VOP, 1, ARGVS_ISW_O11, ARGVS_ISW_O12);\
+		INFORMATION_LN(INSET2, ARGVS_IFCW_VOP, 2, ARGVS_ISW_O21, ARGVS_ISW_O22);\
 	)
 
 #define INVALID_OUT_WARNING(file, extension)									\
 	INVALID_FILE_CONTEXT_WARNING("OUTPUT", file, extension,						\
-		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 1, LEXER_IOW_O11, LEXER_IOW_O12);\
-		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 2, LEXER_IOW_O21, LEXER_IOW_O22);\
-		INFORMATION_LN("\t\t", LEXER_IFCW_VOP, 3, LEXER_IOW_O31, LEXER_IOW_O32);\
+		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 1, ARGVS_IOW_O11, ARGVS_IOW_O12);\
+		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 2, ARGVS_IOW_O21, ARGVS_IOW_O22);\
+		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 3, ARGVS_IOW_O31, ARGVS_IOW_O32);\
 	)
 
 #define INVALID_PRAM_WARNING(flag, pram, expect, action)						\
-	WARNING(LEXER_IPW_DES, {													\
-		WARNING_LN(INSET, LEXER_IPW_LN1, pram, expect);							\
-		WARNING_LN(INSET, LEXER_IPW_LN2);										\
-		WARNING_EN(LEXER_IPW_END, action);										\
-	}, flag);
+	WARNING(ARGVS_IPW_DES, {													\
+		WARNING_LN(INSET, ARGVS_IPW_LN1, pram, expect);							\
+		WARNING_LN(INSET, ARGVS_IPW_LN2);										\
+		WARNING_EN(ARGVS_IPW_END, action);										\
+	}, flag)
 
+#define INVALID_FORMAT_EXCEPTION(provided)                                      \
+    EXCEPTION(ARGVS_IFE_DES, {                                                  \
+        EXCEPTION_LN(INSET, ARGVS_IFE_LN1, provided);                           \
+        EXCEPTION_LN(INSET, ARGVS_IFE_LN2);                                     \
+        INFORMATION_LN(INSET, ARGVS_IFE_LN3);                                   \
+        if (supported_fmt_count == 0){                                          \
+            INFORMATION_LN(INSET2, ARGVS_IFE_NOP, ARGVS_IFE_NO1, ARGVS_IFE_NO2);\
+        }                                                                       \
+        for (int i=0; i < supported_fmt_count; i++){                            \
+            INFORMATION_LN(                                                     \
+                INSET2, ARGVS_IFE_VOP, i,                                       \
+                supported_fmt_array[i]->name,                                   \
+                supported_fmt_array[i]->desc                                    \
+            );                                                                  \
+        }                                                                       \
+        EXCEPTION_EN(ARGVS_IFE_END, provided);                                  \
+    }, provided)
 
 // Global VARIABLES defined to store result for argparse (globally)
 char* _argparse_source_file = NULL;
@@ -126,7 +145,19 @@ _warn_invalid_pram:
 	return false;
 }
 
-bool _argparse_parse_against_fmt_type(const char* string);
+bool _argparse_parse_against_fmt_type(const char* string){
+    
+    for (int i=0; i < supported_fmt_count; i++){
+        if (strcmp(string, supported_fmt_array[i]->name) == 0)
+            return true;
+    }
+
+_warn_invalid_format:
+    INVALID_FORMAT_EXCEPTION(string);
+    exit(-1);
+    return false;
+}
+
 bool _argparse_parse_against_isa_type(const char* string);
 bool _argparse_parse_against_req_help(const char* string);
 bool _argparse_parse_against_asm_into_iR(const char* string);
