@@ -17,7 +17,7 @@ set(PROJ_CORE_INC_DIR    "${PROJ_INC_DIR}/core"             )
 set(PROJ_SUPPORT_SRC_DIR "${PROJ_SRC_DIR}/support"          )
 set(PROJ_SUPPORT_INC_DIR "${PROJ_INC_DIR}/support"          )
 
-set(PROJ_FMT_SRC_DIR "${PROJ_SRC_DIR}/format"               )
+set(PROJ_FMT_SRC_DIR "${PROJ_SRC_DIR}/fmt"                  )
 set(PROJ_ISA_SRC_DIR "${PROJ_SRC_DIR}/isa"                  )
 
 file(GLOB PROJ_SRC_FILES "${PROJ_CORE_SRC_DIR}/*.c" "${PROJ_SUPPORT_SRC_DIR}/*.c")
@@ -52,7 +52,7 @@ foreach(FMT ${FMT_TO_BUILD})
         
         # architecture and format specific files that are need for compilation
         set(ISA_FILE "${PROJ_ISA_SRC_DIR}/isa-${ISA}.c"     )
-        set(FMT_FILE "${PROJ_FMT_SRC_DIR}/format-${FMT}.c"  )
+        set(FMT_FILE "${PROJ_FMT_SRC_DIR}/fmt-${FMT}.c"  )
 
         if (EXISTS ${ISA_FILE} AND EXISTS ${FMT_FILE})
 
