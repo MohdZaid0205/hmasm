@@ -52,4 +52,17 @@
 #define ARGVS_IFE_NO2 "include/fmt.h"
 #define ARGVS_IFE_END "maybe you forgot to %(compile:fmt-%s.c%) into %(hmasm%)?" NLINE NLINE
 
+// argparse.h INVALID_ARCHITECTURE_EXCEPTION(prodivded)
+#define ARGVS_IAE_DES "assembler was provided with an invalid isa=%(%s%)" NLINE
+#define ARGVS_IAE_LN1 "while trying to resolve %(-[-i]sa%) found %(%s%) which is not recognised as a isa" NLINE
+#define ARGVS_IAE_LN2 "why? :raised:exception:=>%(INVALID_ARCHITECTURE_EXCEPTION)" NLINE 
+#define ARGVS_IAE_LN3 "%([!]%) Allowed output isa:" NLINE
+#define ARGVS_IAE_VOP "%d. %(%s%) : %s" NLINE
+#define ARGVS_IAE_NOP "%[<NO-OPTION-AVAILABLE>%] UPDATE %(%s%):%d" NLINE
+#define ARGVS_IAE_NO1 "src/isa/isa.c"
+#define ARGVS_IAE_NO2 "include/isa.h"
+#define ARGVS_IAE_END "maybe you forgot to %(compile:isa-%s.c%) into %(hmasm%)?" NLINE NLINE
+
+
+
 #endif

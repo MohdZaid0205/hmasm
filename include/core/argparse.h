@@ -24,10 +24,10 @@
 // Using this we populate some predefined variables that will be used by ##main |
 // -----------------------------------------------------------------------------+
 
-extern char* _argparse_source_file;
-extern char* _argparse_output_file;
-extern char* _argparse_fmt_type;        // DEPRICATED: just for compatiblity
-extern char* _argparse_isa_type;        // DEPRICATED: just for compatiblity
+extern const char* _argparse_source_file;
+extern const char* _argparse_output_file;
+extern const char* _argparse_fmt_type;        // DEPRICATED: just for compatiblity
+extern const char* _argparse_isa_type;        // DEPRICATED: just for compatiblity
 extern bool  _argparse_req_help;
 extern bool  _argparse_asm_into_iR;
 extern bool  _argparse_asm_from_iR;
@@ -114,13 +114,13 @@ void _argparse_action_against_asm_from_iR(const char* string);
 // output to "a.out" if -o is not provided).                                    |
 // -----------------------------------------------------------------------------+
 
-void _argparse_default_action_against_source_file(const char* string);
-void _argparse_default_action_against_output_file(const char* string);
-void _argparse_default_action_against_fmt_type(const char* string);
-void _argparse_default_action_against_isa_type(const char* string);
-void _argparse_default_action_against_req_help(const char* string);
-void _argparse_default_action_against_asm_into_iR(const char* string);
-void _argparse_default_action_against_asm_from_iR(const char* string);
+void _argparse_default_action_against_source_file();
+void _argparse_default_action_against_output_file();
+void _argparse_default_action_against_fmt_type();
+void _argparse_default_action_against_isa_type();
+void _argparse_default_action_against_req_help();
+void _argparse_default_action_against_asm_into_iR();
+void _argparse_default_action_against_asm_from_iR();
 
 // argparse
 // The main entry point for the argument parsing module.

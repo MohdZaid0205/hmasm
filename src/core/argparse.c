@@ -59,11 +59,31 @@
         EXCEPTION_EN(ARGVS_IFE_END, provided);                                  \
     }, provided)
 
+#define INVALID_ARCHITECTURE_EXCEPTION(provided)                                \
+    EXCEPTION(ARGVS_IAE_DES, {                                                  \
+        EXCEPTION_LN(INSET, ARGVS_IAE_LN1, provided);                           \
+        EXCEPTION_LN(INSET, ARGVS_IAE_LN2);                                     \
+        INFORMATION_LN(INSET, ARGVS_IAE_LN3);                                   \
+        if (supported_isa_count == 0){                                          \
+            INFORMATION_LN(INSET2, ARGVS_IAE_NOP, ARGVS_IAE_NO1, ARGVS_IAE_NO2);\
+        }                                                                       \
+        for (int i=0; i < supported_isa_count; i++){                            \
+            INFORMATION_LN(                                                     \
+                INSET2, ARGVS_IAE_VOP, i,                                       \
+                supported_isa_array[i]->name,                                   \
+                supported_isa_array[i]->desc                                    \
+            );                                                                  \
+        }                                                                       \
+        EXCEPTION_EN(ARGVS_IAE_END, provided);                                  \
+    }, provided)
+
+
+
 // Global VARIABLES defined to store result for argparse (globally)
-char* _argparse_source_file = NULL;
-char* _argparse_output_file = NULL;
-char* _argparse_fmt_type	= NULL;        // DEPRICATED: just for compatiblity
-char* _argparse_isa_type	= NULL;        // DEPRICATED: just for compatiblity
+const char* _argparse_source_file = NULL;
+const char* _argparse_output_file = NULL;
+const char* _argparse_fmt_type	= NULL;        // DEPRICATED: just for compatiblity
+const char* _argparse_isa_type	= NULL;        // DEPRICATED: just for compatiblity
 bool  _argparse_req_help	= false;
 bool  _argparse_asm_into_iR = false;
 bool  _argparse_asm_from_iR = false;
@@ -152,13 +172,74 @@ bool _argparse_parse_against_fmt_type(const char* string){
             return true;
     }
 
-_warn_invalid_format:
+_exit_invalid_format:
     INVALID_FORMAT_EXCEPTION(string);
-    exit(-1);
+    // exit(-1);   // TODO: update this behaviour when you implement default_action
     return false;
 }
 
-bool _argparse_parse_against_isa_type(const char* string);
-bool _argparse_parse_against_req_help(const char* string);
-bool _argparse_parse_against_asm_into_iR(const char* string);
-bool _argparse_parse_against_asm_from_iR(const char* string);
+bool _argparse_parse_against_isa_type(const char* string){
+    
+    for (int i=0; i < supported_isa_count; i++){
+        if (strcmp(string, supported_isa_array[i]->name) == 0)
+            return true;
+    }
+
+_exit_invalid_isa:
+    INVALID_ARCHITECTURE_EXCEPTION(string);
+    // exit(-1);   // TODO: update this behaviour when you implement defautl_action
+    return false;
+}
+
+bool _argparse_parse_against_req_help(const char* string){
+    DEBUG("%(GUIDE%) has not been implemented yet\n", {}, "");
+    return true;
+}
+
+bool _argparse_parse_against_asm_into_iR(const char* string){
+    return true;
+}
+
+bool _argparse_parse_against_asm_from_iR(const char* string){
+    return true;
+}
+
+
+void _argparse_action_against_source_file(const char* string){
+    if (_argparse_parse_against_source_file(string))
+        _argparse_source_file = string;
+}
+void _argparse_action_against_output_file(const char* string){
+    if (_argparse_parse_against_output_file(string))
+        _argparse_output_file = string;
+}
+void _argparse_action_against_fmt_type(const char* string){
+    if (_argparse_parse_against_fmt_type(string))
+        _argparse_fmt_type = string;
+}
+void _argparse_action_against_isa_type(const char* string){
+    if (_argparse_parse_against_isa_type(string))
+        _argparse_isa_type = string;
+}
+void _argparse_action_against_req_help(const char* string){
+    if (_argparse_parse_against_req_help(string))
+        _argparse_req_help = true;
+}
+void _argparse_action_against_asm_into_iR(const char* string){
+    if (_argparse_parse_against_asm_into_iR(string))
+        _argparse_asm_into_iR = true;
+}
+void _argparse_action_against_asm_from_iR(const char* string){
+    if (_argparse_parse_against_asm_from_iR(string))
+        _argparse_asm_from_iR = true;
+}
+
+
+void _argparse_default_action_against_source_file();
+void _argparse_default_action_against_output_file();
+void _argparse_default_action_against_fmt_type();
+void _argparse_default_action_against_isa_type();
+void _argparse_default_action_against_req_help();
+void _argparse_default_action_against_asm_into_iR();
+void _argparse_default_action_against_asm_from_iR();
+
