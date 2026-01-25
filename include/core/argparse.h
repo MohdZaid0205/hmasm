@@ -28,9 +28,9 @@ extern const char* _argparse_source_file;
 extern const char* _argparse_output_file;
 extern const char* _argparse_fmt_type;        // DEPRICATED: just for compatiblity
 extern const char* _argparse_isa_type;        // DEPRICATED: just for compatiblity
-extern bool  _argparse_req_help;
-extern bool  _argparse_asm_into_iR;
-extern bool  _argparse_asm_from_iR;
+extern bool        _argparse_req_help;
+extern bool        _argparse_asm_into_iR;
+extern bool        _argparse_asm_from_iR;
 
 // DEPRICATED parameters may make a comeback as i have not fixated on dynamically
 // or statically embed choices for architecture mapping and format specifications

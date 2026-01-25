@@ -80,15 +80,19 @@
 
 
 // Global VARIABLES defined to store result for argparse (globally)
-const char* _argparse_source_file = NULL;
-const char* _argparse_output_file = NULL;
-const char* _argparse_fmt_type	= NULL;        // DEPRICATED: just for compatiblity
-const char* _argparse_isa_type	= NULL;        // DEPRICATED: just for compatiblity
-bool  _argparse_req_help	= false;
-bool  _argparse_asm_into_iR = false;
-bool  _argparse_asm_from_iR = false;
+const char* _argparse_source_file	= NULL;
+const char* _argparse_output_file	= NULL;
+const char* _argparse_fmt_type		= NULL;
+const char* _argparse_isa_type		= NULL;
+bool		_argparse_req_help		= false;
+bool		_argparse_asm_into_iR	= false;
+bool		_argparse_asm_from_iR	= false;
+bool		_argparse_raised_panic	= false;	// speacial flag for exit respone
 
-// FUNCTION definitions for private and public functions defined in argparse.h
+
+// -----------------------------------------------------------------------------+
+// FUNCTION definitions for private and public functions defined in argparse.h	|
+// -----------------------------------------------------------------------------+
 
 enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 
@@ -96,7 +100,7 @@ enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag) {
 	if (strcmp(flag, "-o") == 0 || strcmp(flag, "--out"   ) == 0) return ARGUMENT_OUT;
 	if (strcmp(flag, "-f") == 0 || strcmp(flag, "--format") == 0) return ARGUMENT_FMT;
 	if (strcmp(flag, "-i") == 0 || strcmp(flag, "--isa"   ) == 0) return ARGUMENT_ISA;
-
+	
 	if (strcmp(flag, "--into-ir") == 0) return ARGUMENT_TIR;
 	if (strcmp(flag, "--from-ir") == 0) return ARGUMENT_FIR;
 
@@ -122,6 +126,9 @@ _warn_about_flags:
 	return ARGUMENT_NONE;
 }
 
+// -----------------------------------------------------------------------------+
+// FUNCTION to parse AGAINST a specific type of argument						|
+// -----------------------------------------------------------------------------+
 
 bool _argparse_parse_against_source_file(const char* string) {
 	char* extension = strrchr(string, '.');
@@ -174,7 +181,7 @@ bool _argparse_parse_against_fmt_type(const char* string){
 
 _exit_invalid_format:
     INVALID_FORMAT_EXCEPTION(string);
-    // exit(-1);   // TODO: update this behaviour when you implement default_action
+	_argparse_raised_panic = true;
     return false;
 }
 
@@ -187,7 +194,7 @@ bool _argparse_parse_against_isa_type(const char* string){
 
 _exit_invalid_isa:
     INVALID_ARCHITECTURE_EXCEPTION(string);
-    // exit(-1);   // TODO: update this behaviour when you implement defautl_action
+	_argparse_raised_panic = true;
     return false;
 }
 
@@ -204,6 +211,9 @@ bool _argparse_parse_against_asm_from_iR(const char* string){
     return true;
 }
 
+// -----------------------------------------------------------------------------+
+// FUNCTION to take action AGAINST a specific type of argument					|
+// -----------------------------------------------------------------------------+
 
 void _argparse_action_against_source_file(const char* string){
     if (_argparse_parse_against_source_file(string))
@@ -234,12 +244,39 @@ void _argparse_action_against_asm_from_iR(const char* string){
         _argparse_asm_from_iR = true;
 }
 
+// -----------------------------------------------------------------------------+
+// FUNCTION to take default action AGAINST a specific argument					|
+// -----------------------------------------------------------------------------+
 
-void _argparse_default_action_against_source_file();
-void _argparse_default_action_against_output_file();
-void _argparse_default_action_against_fmt_type();
-void _argparse_default_action_against_isa_type();
-void _argparse_default_action_against_req_help();
-void _argparse_default_action_against_asm_into_iR();
-void _argparse_default_action_against_asm_from_iR();
+void _argparse_default_action_against_source_file() {
+	if (!_argparse_source_file)
+		_argparse_source_file = "a.asm";
+}
 
+void _argparse_default_action_against_output_file() {
+	if (!_argparse_output_file)
+		_argparse_output_file = "a.bin";
+}
+
+void _argparse_default_action_against_fmt_type() {
+	if (!_argparse_fmt_type)
+		exit(-1);
+}
+
+void _argparse_default_action_against_isa_type() {
+	if (!_argparse_isa_type)
+		exit(-1);
+}
+
+void _argparse_default_action_against_req_help() {
+	// Default is false (global variable init), nothing to do here.
+	// If you wanted to auto-print help on empty args, you would do it here.
+}
+
+void _argparse_default_action_against_asm_into_iR() {
+	// Default is false, nothing to do.
+}
+
+void _argparse_default_action_against_asm_from_iR() {
+	// Default is false, nothing to do.
+}
