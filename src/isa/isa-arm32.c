@@ -1,6 +1,18 @@
 #include "isa.h"
+#include "pch.h"
 
-const char* assembler_isa_name = "arm32";
-const char* assembler_do_assemble_for_isa(const char* what){
-    return assembler_isa_name;
+void arm32_instruction();
+
+static const struct ASSEMBLER_ISA architecture = {
+    .name = "arm32",
+    .desc = "arm based 32 bit",
+    .instruction = arm32_instruction,
+};
+
+void arm32_instruction(){
+    printf("Hello arm32\n");
+}
+
+__attribute__((constructor)) static void register_arm32(){
+    register_isa(&architecture);
 }
