@@ -12,7 +12,7 @@
 // selectively to create custom logging level as per your requirement by using
 // bitwise OR operations such as (LEVEL_LOG | LEVEL_INF) shows LOGs and INFOs
 typedef enum LOGGER_LEVEL_OPTION {
-	LEVEL_NO  = 0b000000,		// NONE or NO		are allowed to pass.
+	LEVEL_NONE= 0b000000,		// NONE or NO		are allowed to pass.
 	LEVEL_LOG = 0b000001,		// LOGs				are allowed to pass.
 	LEVEL_INF = 0b000010,		// INFORMATIONs		are allowed to pass.
 	LEVEL_DBG = 0b000100,		// DEBUGs			are allowed to pass.
@@ -170,19 +170,5 @@ int lfprintf(LogLevel level, FILE* stream, const char* format, ...);
 #define ERR_IF(condition, ...) if (condition) { ERR(__VA_ARGS__) }
 #define FAT_IF(condition, ...) if (condition) { FAT(__VA_ARGS__) }
 
-// helper lines to put through code in order to display required behaviour without
-// explicitly calling methods each time it is required of you to display something
-
-#define LOGGING(...)	LOG("%(logging%): "	);	LOG(__VA_ARGS__);
-#define INFO(...)		INF("%(Info%): "	);	INF(__VA_ARGS__);
-#define DEBUG(...)		DBG("%(Debug%): "	);	DBG(__VA_ARGS__);
-#define WARNING(...)	WRN("%(Warning%): "	);	WRN(__VA_ARGS__);
-#define ERROR(...)		ERR("%(Error%): "	);	ERR(__VA_ARGS__);
-#define FATAL(...)		FAT("%(Fatal%): "	);	FAT(__VA_ARGS__);
-
-// notion of logging groups and associated notion of EXCEPTIONS as a group of logs
-#define EXCEPTION(what, body, ... ) {ERR("%(Exception%): "); ERR(what, __VA_ARGS__); body}
-#define ASSERTION(what, pass, fail) {if (what) {pass} else {fail}
 
 #endif
-

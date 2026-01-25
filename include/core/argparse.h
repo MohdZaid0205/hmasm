@@ -20,9 +20,27 @@
 // We use a Factory Pattern approach here:                                      |
 //      argparse_argument_input("file.s")   -> returns{ ARGUMENT_INP, "file.s" }|
 //      argparse_argument_output("out.bin") -> returns{ ARGUMENT_OUT, "out.bin"}|
+//                                                                              |
+// Using this we populate some predefined variables that will be used by ##main |
 // -----------------------------------------------------------------------------+
 
+extern const char* _argparse_source_file;
+extern const char* _argparse_output_file;
+extern const char* _argparse_fmt_type;        // DEPRICATED: just for compatiblity
+extern const char* _argparse_isa_type;        // DEPRICATED: just for compatiblity
+extern bool  _argparse_req_help;
+extern bool  _argparse_asm_into_iR;
+extern bool  _argparse_asm_from_iR;
+
+// DEPRICATED parameters may make a comeback as i have not fixated on dynamically
+// or statically embed choices for architecture mapping and format specifications
+
 // [ CHANGE_LOG ] --------------------------------------------------------------+
+// ---------------------------(28-12-2025 20:00)--------------------------------+
+// -> Moved variables to argparse itself, variables are to be dealt within      |
+//    argparse in order to hide complexity that argparse enforces.              |
+// -> I might as well nuke this shit in future.                                 |
+// -----------------------------------------------------------------------------+
 // ---------------------------(26-12-2025 08:30)--------------------------------+
 // -> Initial definition of argument types and structures.                      |
 // -> Added constructors for specific argument types to ensure type safety      |
@@ -37,79 +55,75 @@
 //                  | before a string, it is usually assumed to be this.        |
 // ARGUMENT_OUT     | Destination file. Corresponds to -o or --output.          |
 // ARGUMENT_FMT     | Output format (binary, executable, object). -f or --fmt.  |
-// ARGUMENT_MAP     | Architecture mapping/layout file. -m or --map.            |
+// ARGUMENT_ISA     | Architecture mapping/layout file. -m or --map.            |
 // ARGUMENT_HLP     | Request for help/usage text. -h or --help.                |
+// ARGUMENT_FIR     | Input is IR. Assemble from Intermediate Representation.   |
+// ARGUMENT_TIR     | Output IR. Dump Intermediate Representation to file.      |
 // -----------------+-----------------------------------------------------------+
-typedef enum ASSEMBLER_ARGUMENT_TYPE{
+typedef enum ASSEMBLER_ARGUMENT_TYPE {
     ARGUMENT_INP,                   // Input file path (source)
     ARGUMENT_OUT,                   // Output file path (destination)
     ARGUMENT_FMT,                   // Format specifier (bin/exe/obj)
-    ARGUMENT_MAP,                   // Memory mapping/Arch specifier
+    ARGUMENT_ISA,                   // Memory mapping/Arch specifier
     ARGUMENT_HLP,                   // Help / Usage info
+    ARGUMENT_FIR,                   // From IR: Treat input as intermediate rep
+    ARGUMENT_TIR,                   // To IR: Stop after parsing, export IR
     ARGUMENT_NONE,                  // no type matched with argument
 } ArgumentType, FlagType;
 
-// struct ASSEMBLER_ARGUMENT aka AssemblerArgument & Arg
-// Represents a single parsed command line entity. 
+// _argparse_resolve_flag_type_for
+// Internal helper to determine the Enum type of a specific string flag.
 //
 // [ NOTE ] --------------------------------------------------------------------+
-// The `value` pointer usually points to the actual memory inside `argv[]`.     |
-// We do not copy the string, so we do not own the memory. Do not free `value`. |
+// Distinct from the public API, this is the internal resolution logic used by  |
+// the main parsing loop to decide how to handle the current token in argv.     |
 // -----------------------------------------------------------------------------+
-typedef struct ASSEMBLER_ARGUMENT{
-    enum ASSEMBLER_ARGUMENT_TYPE type;  // The category of this argument
-    const char* value;                  // The string data associated (if any)
-} AssemblerArgument, Arg;
+enum ASSEMBLER_ARGUMENT_TYPE _argparse_resolve_flag_type_for(const char* flag);
 
-// argparse_get_type_for
-// Takes a raw string (like "-o", "--help", or "filename.s") and determines
-// which enum type it corresponds to.
-//
-// [ NOTE ] --------------------------------------------------------------------+
-// This function needs to be robust. It should handle both short flags (-) and  |
-// long flags (--). If the string doesn't look like a flag (doesn't start with  |
-// hyphen), it might default to ARGUMENT_INP or return an error/unknown state   |
-// depending on how strict we want the parser to be.                            |
-// -----------------------------------------------------------------------------+
-enum ASSEMBLER_ARGUMENT_TYPE argparse_get_type_for(const char* flag);
-
-// argparse_argument_input
-// Constructor for an Input Argument. Creates a struct configured as a source file 
-// input. By default it is assumed that file extension contains .s or .asm in it.
-struct ASSEMBLER_ARGUMENT argparse_argument_input(const char* value);
-
-// argparse_argument_output
-// Constructor for an Output Argument.
-// Creates a struct configured as a destination file output.
-//
 // [ INFO ] --------------------------------------------------------------------+
-// Used when the parser encounters a -o flag and grabs the next token.          |
+// The following functions are boolean predicates. They validate if a specific  |
+// string input meets the criteria for a given argument category (e.g., does    |
+// the source file exist? is the format string a valid supported type?).        |
 // -----------------------------------------------------------------------------+
-struct ASSEMBLER_ARGUMENT argparse_argument_output(const char* value);
 
-// argparse_argument_format
-// Constructor for a Format Argument. Specifies the output binary format (flat 
-// binary, elf, etc).
-//
-// [ TODO ] --------------------------------------------------------------------+
-// We might need to validate if 'value' is actually a supported format here,    |
-// or leave that validation for the main logic? For now, we just store it.      |
-// -----------------------------------------------------------------------------+
-struct ASSEMBLER_ARGUMENT argparse_argument_format(const char* value);
+bool _argparse_parse_against_source_file(const char* string);
+bool _argparse_parse_against_output_file(const char* string);
+bool _argparse_parse_against_fmt_type(const char* string);
+bool _argparse_parse_against_isa_type(const char* string);
+bool _argparse_parse_against_req_help(const char* string);
+bool _argparse_parse_against_asm_into_iR(const char* string);
+bool _argparse_parse_against_asm_from_iR(const char* string);
 
-// argparse_argument_mapping
-// Constructor for a Mapping Argument. Used for passing custom architecture 
-// definitions json maps. or any supported maps.
-struct ASSEMBLER_ARGUMENT argparse_argument_mapping(const char* value);
-
-// argparse_argument_help
-// Constructor for a Help Argument.The 'value' here is typically NULL or empty, 
-// as the flag itself is the msg, but kept as const char* for structural 
-// consistency with other constructors.
-//
 // [ INFO ] --------------------------------------------------------------------+
-// If -h or --help flag is present, no other falg is allowed to run             |
+// The following functions are the 'Setters'. They are responsible for the      |
+// side-effect of modifying the global variables (_argparse_source_file, etc.)  |
+// once a flag and its value have been successfully identified and validated.   |
 // -----------------------------------------------------------------------------+
-struct ASSEMBLER_ARGUMENT argparse_argument_help(const char* value);
+
+void _argparse_action_against_source_file(const char* string);
+void _argparse_action_against_output_file(const char* string);
+void _argparse_action_against_fmt_type(const char* string);
+void _argparse_action_against_isa_type(const char* string);
+void _argparse_action_against_req_help(const char* string);
+void _argparse_action_against_asm_into_iR(const char* string);
+void _argparse_action_against_asm_from_iR(const char* string);
+
+// [ INFO ] --------------------------------------------------------------------+
+// These functions are invoked when specific flags are missing from the command |
+// line. They populate the global state with sensible defaults (e.g., setting   |
+// output to "a.out" if -o is not provided).                                    |
+// -----------------------------------------------------------------------------+
+
+void _argparse_default_action_against_source_file();
+void _argparse_default_action_against_output_file();
+void _argparse_default_action_against_fmt_type();
+void _argparse_default_action_against_isa_type();
+void _argparse_default_action_against_req_help();
+void _argparse_default_action_against_asm_into_iR();
+void _argparse_default_action_against_asm_from_iR();
+
+// argparse
+// The main entry point for the argument parsing module.
+void argparse(int argc, char** argv);
 
 #endif
