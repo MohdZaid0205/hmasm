@@ -251,12 +251,16 @@ void _argparse_default_action_against_output_file() {
 		_argparse_output_file = "a.bin";
 }
 void _argparse_default_action_against_fmt_type() {
-	if (!_argparse_fmt_type)
-		exit(-1);
+	if (!_argparse_fmt_type){
+        INVALID_FORMAT_EXCEPTION("<NONE-PROVIDED>");
+ 		exit(-1);
+    }
 }
 void _argparse_default_action_against_isa_type() {
-	if (!_argparse_isa_type)
-		exit(-1);
+	if (!_argparse_isa_type){
+        INVALID_ARCHITECTURE_EXCEPTION("<NONE-PROVIDED");
+        exit(-1);
+    }
 }
 void _argparse_default_action_against_req_help() {
 	// Default is false (global variable init), nothing to do here.
