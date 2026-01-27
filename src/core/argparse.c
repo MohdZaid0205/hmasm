@@ -145,7 +145,6 @@ _warn_invalid_source:
 	INVALID_SRC_WARNING(string, extension ? extension : "<NULL>");
 	return false;
 }
-
 bool _argparse_parse_against_output_file(const char* string) {
 	
 	if (strncmp(string, "-", 1) == 0)
@@ -171,7 +170,6 @@ _warn_invalid_pram:
 		"PARAMETER < > and FLAG -[-o]ut has been IGNORED");
 	return false;
 }
-
 bool _argparse_parse_against_fmt_type(const char* string){
     
     for (int i=0; i < supported_fmt_count; i++){
@@ -184,7 +182,6 @@ _exit_invalid_format:
 	_argparse_raised_panic = true;
     return false;
 }
-
 bool _argparse_parse_against_isa_type(const char* string){
     
     for (int i=0; i < supported_isa_count; i++){
@@ -197,16 +194,13 @@ _exit_invalid_isa:
 	_argparse_raised_panic = true;
     return false;
 }
-
 bool _argparse_parse_against_req_help(const char* string){
     DEBUG("%(GUIDE%) has not been implemented yet\n", {}, "");
     return true;
 }
-
 bool _argparse_parse_against_asm_into_iR(const char* string){
     return true;
 }
-
 bool _argparse_parse_against_asm_from_iR(const char* string){
     return true;
 }
@@ -252,31 +246,94 @@ void _argparse_default_action_against_source_file() {
 	if (!_argparse_source_file)
 		_argparse_source_file = "a.asm";
 }
-
 void _argparse_default_action_against_output_file() {
 	if (!_argparse_output_file)
 		_argparse_output_file = "a.bin";
 }
-
 void _argparse_default_action_against_fmt_type() {
 	if (!_argparse_fmt_type)
 		exit(-1);
 }
-
 void _argparse_default_action_against_isa_type() {
 	if (!_argparse_isa_type)
 		exit(-1);
 }
-
 void _argparse_default_action_against_req_help() {
 	// Default is false (global variable init), nothing to do here.
 	// If you wanted to auto-print help on empty args, you would do it here.
 }
-
 void _argparse_default_action_against_asm_into_iR() {
 	// Default is false, nothing to do.
 }
-
 void _argparse_default_action_against_asm_from_iR() {
 	// Default is false, nothing to do.
 }
+
+// ARGPARSE MAIN FUNCTION
+void argparse(int argc, char** argv) {
+
+    for (int i = 1; i < argc; i++) {
+        char* current_arg = argv[i];
+        FlagType type = _argparse_resolve_flag_type_for(current_arg);
+
+        switch (type) {
+        case ARGUMENT_HLP:
+            _argparse_action_against_req_help(current_arg);
+            break;
+
+        case ARGUMENT_TIR:
+            _argparse_action_against_asm_into_iR(current_arg);
+            break;
+
+        case ARGUMENT_FIR:
+            _argparse_action_against_asm_from_iR(current_arg);
+            break;
+
+        case ARGUMENT_INP:
+            _argparse_action_against_source_file(current_arg);
+            break;
+
+        case ARGUMENT_OUT:
+            if (i + 1 < argc) {
+                _argparse_action_against_output_file(argv[++i]);
+            }
+            else {
+                INVALID_PRAM_WARNING(current_arg, "NULL", "FILENAME", "OUTPUT flag ignored");
+            }
+            break;
+
+        case ARGUMENT_FMT:
+            if (i + 1 < argc) {
+                _argparse_action_against_fmt_type(argv[++i]);
+            }
+            else {
+                INVALID_PRAM_WARNING(current_arg, "NULL", "FORMAT_TYPE", "FORMAT flag ignored");
+            }
+            break;
+
+        case ARGUMENT_ISA:
+            if (i + 1 < argc) {
+                _argparse_action_against_isa_type(argv[++i]);
+            }
+            else {
+                INVALID_PRAM_WARNING(current_arg, "NULL", "ISA_TYPE", "ISA flag ignored");
+            }
+            break;
+
+        case ARGUMENT_NONE:
+        default:
+            break;
+        }
+    }
+    _argparse_default_action_against_req_help();
+
+    if (!_argparse_req_help) {
+        _argparse_default_action_against_source_file();
+        _argparse_default_action_against_output_file();
+        _argparse_default_action_against_fmt_type();
+        _argparse_default_action_against_isa_type();
+        _argparse_default_action_against_asm_into_iR();
+        _argparse_default_action_against_asm_from_iR();
+    }
+}
+
