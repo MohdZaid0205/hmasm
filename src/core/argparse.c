@@ -89,6 +89,8 @@ bool		_argparse_asm_into_iR	= false;
 bool		_argparse_asm_from_iR	= false;
 bool		_argparse_raised_panic	= false;	// speacial flag for exit respone
 
+bool        _argparse_provided_isa  = false;
+bool        _argparse_provided_fmt  = false;
 
 // -----------------------------------------------------------------------------+
 // FUNCTION definitions for private and public functions defined in argparse.h	|
@@ -252,13 +254,17 @@ void _argparse_default_action_against_output_file() {
 }
 void _argparse_default_action_against_fmt_type() {
 	if (!_argparse_fmt_type){
-        INVALID_FORMAT_EXCEPTION("<NONE-PROVIDED>");
+        if (!_argparse_provided_fmt) {
+            INVALID_FORMAT_EXCEPTION(ARGVS_NONE_PROVIDED);
+        }
  		exit(-1);
     }
 }
 void _argparse_default_action_against_isa_type() {
 	if (!_argparse_isa_type){
-        INVALID_ARCHITECTURE_EXCEPTION("<NONE-PROVIDED");
+        if (!_argparse_provided_isa){
+            INVALID_ARCHITECTURE_EXCEPTION(ARGVS_NONE_PROVIDED);
+        }
         exit(-1);
     }
 }
@@ -284,46 +290,44 @@ void argparse(int argc, char** argv) {
         case ARGUMENT_HLP:
             _argparse_action_against_req_help(current_arg);
             break;
-
         case ARGUMENT_TIR:
             _argparse_action_against_asm_into_iR(current_arg);
             break;
-
         case ARGUMENT_FIR:
             _argparse_action_against_asm_from_iR(current_arg);
             break;
-
         case ARGUMENT_INP:
             _argparse_action_against_source_file(current_arg);
             break;
-
         case ARGUMENT_OUT:
             if (i + 1 < argc) {
                 _argparse_action_against_output_file(argv[++i]);
             }
             else {
-                INVALID_PRAM_WARNING(current_arg, "NULL", "FILENAME", "OUTPUT flag ignored");
+                INVALID_PRAM_WARNING(current_arg, ARGVS_NONE_PROVIDED,
+                                     ARGVS_PRAM_FNAME, ARGVS_RESP_FNAME);
             }
             break;
-
         case ARGUMENT_FMT:
             if (i + 1 < argc) {
+                _argparse_provided_fmt = true;
                 _argparse_action_against_fmt_type(argv[++i]);
             }
             else {
-                INVALID_PRAM_WARNING(current_arg, "NULL", "FORMAT_TYPE", "FORMAT flag ignored");
+                INVALID_PRAM_WARNING(current_arg, ARGVS_NONE_PROVIDED,
+                                     ARGVS_PRAM_FTYPE, ARGVS_RESP_FTYPE);
             }
             break;
-
         case ARGUMENT_ISA:
             if (i + 1 < argc) {
+                _argparse_provided_isa = true;
                 _argparse_action_against_isa_type(argv[++i]);
             }
             else {
-                INVALID_PRAM_WARNING(current_arg, "NULL", "ISA_TYPE", "ISA flag ignored");
+                INVALID_PRAM_WARNING(current_arg, ARGVS_NONE_PROVIDED,
+                                     ARGVS_PRAM_ITYPE, ARGVS_RESP_ITYPE);
             }
             break;
-
         case ARGUMENT_NONE:
         default:
             break;

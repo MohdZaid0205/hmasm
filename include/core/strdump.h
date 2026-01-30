@@ -63,6 +63,13 @@
 #define ARGVS_IAE_NO2 "include/isa.h"
 #define ARGVS_IAE_END "maybe you forgot to %(compile:isa-%s.c%) into %(hmasm%)?" NLINE NLINE
 
-
+// argparse.h INVALID_PRAM_WARNING ~ GENERAL
+#define ARGVS_NONE_PROVIDED "NONE"
+#define ARGVS_PRAM_FNAME "<file-name>"
+#define ARGVS_PRAM_FTYPE "<format-type>"
+#define ARGVS_PRAM_ITYPE "<isa-type>"
+#define ARGVS_RESP_FNAME "flag -[-o]ut IGNORED"
+#define ARGVS_RESP_FTYPE "flag -[-f]ormat IGNORED"
+#define ARGVS_RESP_ITYPE "flag -[-i]sa IGNORED"
 
 #endif

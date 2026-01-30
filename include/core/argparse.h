@@ -36,6 +36,9 @@ extern bool        _argparse_asm_from_iR;
 // or statically embed choices for architecture mapping and format specifications
 
 // [ CHANGE_LOG ] --------------------------------------------------------------+
+// ---------------------------(30-01-2026 17:00)--------------------------------+
+// -> Implemented all functionlities as specified by previous iterations        |
+// -> Decided that i would not nuke this shit in future (apparently)            |
 // ---------------------------(28-12-2025 20:00)--------------------------------+
 // -> Moved variables to argparse itself, variables are to be dealt within      |
 //    argparse in order to hide complexity that argparse enforces.              |
