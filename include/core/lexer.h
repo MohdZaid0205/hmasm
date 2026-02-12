@@ -1,6 +1,8 @@
 #ifndef ASSEMBLER_LEXER_H
 #define ASSEMBLER_LEXER_H
 
+#include "pch.h"
+
 // [ INFO ] --------------------------------------------------------------------+
 // lexer for assembler to directly operate on a FILE* while seperating const	| 
 // char* into their own small lexemes, essentially there are 4 types of lexemes	|
@@ -57,7 +59,7 @@ typedef enum ASSEMBLER_LEXEME_TYPE {
 typedef struct LEXEME_PUNCTUATION{
     unsigned int line_no;               // line number within file OCCURANCE
     unsigned int char_no;               // charcahter number within that LINE
-    const char data;                    // data to store (associated char).
+    char data;                          // data to store (associated char).
 } LexemePun, LexemePunctuation;
 
 // LEXEME_OPERATION aka LexemeOpr & LexemeOperation
@@ -80,7 +82,7 @@ typedef struct LEXEME_PUNCTUATION{
 typedef struct LEXEME_OPERATION{
     unsigned int line_no;               // line number within file OCCURANCE
     unsigned int char_no;               // charcahter number within that LINE
-    const char data;                    // data to store (associated symbol)
+    char data;                          // data to store (associated symbol)
 } LexemeOpr, LexemeOperation;
 
 // LEXEME_LITERAL_TYPE aka LexemeLitType & LexemeLiteralType
@@ -93,6 +95,7 @@ typedef enum LEXEME_LITERAL_TYPE{
     LITERAL_NUMERIC,                    // 0xblahblah or maybe any number 123
     LITERAL_STRING,                     // "this is a string, HELLO WORLD!"
     LITERAL_NONE,                       // dont ask me why im writing this :-(
+    // LITERAL_NONE is suppoesed to be used for both labels and keywords intially
 } LexemeLitType, LexemeLiteralType;
 
 // LEXEME_LITERAL aka LexemeLit & LexemeLiteral
@@ -113,7 +116,7 @@ typedef enum LEXEME_LITERAL_TYPE{
 //      against keywords and if it is not a part of keyword then consider it to 
 //      a label
 typedef struct LEXEME_LITERAL{
-    enum LEXEME_LITERAL_TYPE type;       // type of literal that we hold
+    enum LEXEME_LITERAL_TYPE type;      // type of literal that we hold
     unsigned int line_no;               // line number associated with this
     unsigned int size_of;               // size of this lexeme in num bytes
     const char* data;                   // data to store (associated char*)
@@ -144,5 +147,10 @@ typedef struct LEXEME_TOKEN{
         struct LEXEME_LITERAL     lit;  // read lexeme as a literal
     } as;
 } LexemeToken, Lexeme;
+
+// FUNCTIONS_FOR_LEXICAL_ANALYSIS
+// following are declarations of all functions for lexical analysis of source
+// (temporary)
+bool lexer(FILE* source, struct LEXEME_TOKEN* result);
 
 #endif
