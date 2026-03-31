@@ -30,11 +30,29 @@ void __print_lexeme_literal(struct LEXEME_LITERAL* l) {
 }
 // FIXME: just revamp how we are to deal with chrachters and collection process
 
-bool check_against_literal_start(char c) {
-    return c == "\"" || c == "'" || c == ";";
+#define CHECK(w) c == w
+#define PREVS(w) p == w
+
+bool check_against_pun(char c) {
+    return CHECK(',') 
+        || CHECK(':') 
+        || CHECK('.');
 }
 
-bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
+bool check_against_opr(char c) {
+    return CHECK('&') 
+        || CHECK('*');
+}
+
+bool check_against_lit(char c) {
+    return CHECK('"')
+        || CHECK('0')
+        || CHECK('\'') 
+        || CHECK('#');
+}
+
+char* collect(FILE* source, char upto) {
+    long int s = ftell(source);
     char c;
     while ((c = fgetc(source)) != EOF) {
         if (c == upto) break;
@@ -55,13 +73,37 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
     char p = EOF;
     char c = EOF;
     while ((c = fgetc(source)) != EOF){
-        if (check_against_punctuations(c)) {
+        bool lexer_found_token = false;
+        if (check_against_pun(c)) {
             result->type = LEXEME_PUN;
             result->as.pun.line_no = 0; 
             result->as.pun.char_no = 0; 
             result->as.pun.data = c; 
-
-            return true;
+            __print_lexeme_punctuation(&result->as.pun);
+            lexer_found_token = true;
+        } else if (check_against_opr(c)) {
+            result->type = LEXEME_OPR;
+            result->as.opr.line_no = 0;
+            result->as.opr.char_no = 0;
+            result->as.opr.data = c;
+            __print_lexeme_operation(&result->as.opr);
+            lexer_found_token = true;
+        } else if (check_against_lit(c) && (
+                PREVS(' ') || PREVS('\n') || PREVS(EOF)
+            )) {
+            char e = CHECK('#') ? '\n' : CHECK('0') ? ' ' : c;
+            switch (c) {
+                case '"': result->as.lit.type = LITERAL_STRING ; break;
+                case '0': result->as.lit.type = LITERAL_NUMERIC; break;
+                case '#': result->as.lit.type = LITERAL_COMMENT; break;
+                default : result->as.lit.type = LITERAL_NONE   ; break;
+            };
+            result->type = LEXEME_LIT;
+            result->as.lit.line_no = 0;
+            result->as.lit.size_of = 0;
+            result->as.lit.data = collect(source, e);
+            __print_lexeme_literal(&result->as.lit);
+            lexer_found_token = true;
         }
         p = c;
         
