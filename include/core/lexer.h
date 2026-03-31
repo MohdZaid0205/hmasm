@@ -62,6 +62,8 @@ typedef struct LEXEME_PUNCTUATION{
     char data;                          // data to store (associated char).
 } LexemePun, LexemePunctuation;
 
+void __print_lexeme_punctuation(struct LEXEME_PUNCTUATION* p);
+
 // LEXEME_OPERATION aka LexemeOpr & LexemeOperation
 // LEXEME_OPERATION is representation of operations that is allowed inside assem-
 // -bly, what do i call operation? anything arithmatic that has directly been put
@@ -84,6 +86,8 @@ typedef struct LEXEME_OPERATION{
     unsigned int char_no;               // charcahter number within that LINE
     char data;                          // data to store (associated symbol)
 } LexemeOpr, LexemeOperation;
+
+void __print_lexeme_operation(struct LEXEME_OPERATION* o);  // for debug purposes
 
 // LEXEME_LITERAL_TYPE aka LexemeLitType & LexemeLiteralType
 // To represent type of literal that has been encountered in process of finding
@@ -122,6 +126,8 @@ typedef struct LEXEME_LITERAL{
     const char* data;                   // data to store (associated char*)
 } LexemeLit, LexemeLiteral;
 
+void __print_lexeme_literal(struct LEXEME_LITERAL* l);
+
 // LEXEME_TOKEN aka LexemeToken or Lexeme
 // LEXEME_TOKEN holds type of lexeme and associated information to that lexeme
 // 
@@ -147,6 +153,8 @@ typedef struct LEXEME_TOKEN{
         struct LEXEME_LITERAL     lit;  // read lexeme as a literal
     } as;
 } LexemeToken, Lexeme;
+
+void __print_lexeme_token(struct LEXEME_TOKEN* token);
 
 // FUNCTIONS_FOR_LEXICAL_ANALYSIS
 // following are declarations of all functions for lexical analysis of source

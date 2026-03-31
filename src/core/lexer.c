@@ -3,9 +3,30 @@
 #include "logging.h"
 #include "isa.h"
 #include "fmt.h"
+#include "strdump.h"
 
-bool check_against_punctuations(char c) {
-    return c == ',' || c == ':' || c == '.';
+void __print_lexeme_punctuation(struct LEXEME_PUNCTUATION* p) {
+    DBG("%[ LEXER %] found %(LEXEME_PUN('%c')%) at %d:%d\n",
+        p->data, p->line_no, p->char_no );
+}
+
+void __print_lexeme_operation(struct LEXEME_OPERATION* o) {
+    DBG("%[ LEXER %] found %(LEXEME_OPR('%c')%) at %d:%d\n",
+        o->data, o->line_no, o->char_no );
+}
+
+void __print_lexeme_literal(struct LEXEME_LITERAL* l) {
+    char* __literal_type_string;
+    switch (l->type) {
+        case LITERAL_ADDRESS: __literal_type_string = "LITERAL_ADDRESS"; break;
+        case LITERAL_COMMENT: __literal_type_string = "LITERAL_COMMENT"; break;
+        case LITERAL_NUMERIC: __literal_type_string = "LITERAL_NUMERIC"; break;
+        case LITERAL_STRING : __literal_type_string = "LITERAL_STRING" ; break;
+        case LITERAL_NONE   : __literal_type_string = "LITERAL_NONE"   ; break;
+    };
+
+    DBG("%[ LEXER %] found %(LEXEME_LIT( type:%s )%) at %d:%d with value=%(%s%)\n",
+        __literal_type_string, l->line_no, l->size_of, l->data);
 }
 
 bool check_against_literal_start(char c) {
