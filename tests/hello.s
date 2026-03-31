@@ -16,7 +16,7 @@ _start:
 
     # then we proceed to exit this
     # with 0 as return code as this
-    #rand sucessfully as expected
+    # rnd sucessfully as expected
     li a7, 0x5d
     li a0, 0x00
     ecall
