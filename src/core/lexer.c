@@ -28,6 +28,7 @@ void __print_lexeme_literal(struct LEXEME_LITERAL* l) {
     DBG("%[ LEXER %] found %(LEXEME_LIT( type:%s )%) at %d:%d with value=%(%s%)\n",
         __literal_type_string, l->line_no, l->size_of, l->data);
 }
+// FIXME: just revamp how we are to deal with chrachters and collection process
 
 bool check_against_literal_start(char c) {
     return c == "\"" || c == "'" || c == ";";
@@ -35,6 +36,24 @@ bool check_against_literal_start(char c) {
 
 bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
     char c;
+    while ((c = fgetc(source)) != EOF) {
+        if (c == upto) break;
+        if (c == '\n') break;    // FIXME: implement error handling
+    }
+    long int e = ftell(source);
+    long int size = e - s;
+
+    char* buffer = malloc(sizeof(char)*size);
+    fseek(source, s, SEEK_SET);
+    fgets(buffer, size, source);
+    fseek(source, e, SEEK_SET);
+    
+    return buffer;
+}
+
+bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
+    char p = EOF;
+    char c = EOF;
     while ((c = fgetc(source)) != EOF){
         if (check_against_punctuations(c)) {
             result->type = LEXEME_PUN;
@@ -44,6 +63,10 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
 
             return true;
         }
+        p = c;
+        
+        if (lexer_found_token) return true;
+        // else continue;
     }
     return false;
 }
