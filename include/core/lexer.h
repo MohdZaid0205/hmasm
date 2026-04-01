@@ -20,7 +20,7 @@ typedef enum ASSEMBLER_LEXEME_TYPE {
 	LEXEME_PUN,							// LEXEME type found to be PUNCTUATION
 	LEXEME_OPR,							// LEXEME type found to be OPERATION
 	LEXEME_LIT,							// LEXEME type found to be LITERAL
-	LEXEME_KEY,							// LEXEME type found to be KEYWORD
+	LEXEME_WRD,							// LEXEME type found to be WORD
 } LexemeType;
 
 // [ IDEA ] --------------------------------------------------------------------+
@@ -128,6 +128,15 @@ typedef struct LEXEME_LITERAL{
 
 void __print_lexeme_literal(struct LEXEME_LITERAL* l);
 
+
+typedef struct LEXEME_WORD {
+    unsigned int line_no;
+    unsigned int size_of;
+    const char* data;
+} LexemeWrd, LexemeWord;
+
+void __print_lexeme_word(struct LEXEME_WORD* w);
+
 // LEXEME_TOKEN aka LexemeToken or Lexeme
 // LEXEME_TOKEN holds type of lexeme and associated information to that lexeme
 // 
@@ -151,6 +160,7 @@ typedef struct LEXEME_TOKEN{
         struct LEXEME_PUNCTUATION pun;  // read lexeme as a punctuation
         struct LEXEME_OPERATION   opr;  // read lexeme as a operation
         struct LEXEME_LITERAL     lit;  // read lexeme as a literal
+        struct LEXEME_WORD        wrd;  // read lexeme as a word
     } as;
 } LexemeToken, Lexeme;
 
