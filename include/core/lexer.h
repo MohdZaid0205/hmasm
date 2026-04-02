@@ -33,6 +33,11 @@ typedef enum ASSEMBLER_LEXEME_TYPE {
 //		LEXEME_TOKEN.as.lit : is typeof(<lit-type>)								|
 //                                                                              |
 // [ CHANGE_LOG ] --------------------------------------------------------------+
+// ---------------------------(02-04-2026 10:30)--------------------------------+
+// -> added item:                                                               |
+//      LEXEME_TOKEN.as.wrd : is typeof(<word-type>)                            |
+//      LEXEMEs had no way to classify individual blobs of charachters that may |
+//      be defined by themselves, such as: KEYWORDS, LABLES ...                 |
 // ---------------------------(25-12-2025 17:03)--------------------------------+
 // -> removed line:                                                             |
 //		LEXEME_TOKEN.as.key : is typeof(<key-type>)								|
@@ -129,10 +134,14 @@ typedef struct LEXEME_LITERAL{
 void __print_lexeme_literal(struct LEXEME_LITERAL* l);
 
 
+// LEXEME_WORD aska LexemeWrd & LexemeWord
+// LEXEME_WORD is prepresentation of constant size blocks of charachters that are
+// not literal, these may be used in future to define behaviour of if we want to
+// take out key-words lables or other kinds of entitties.
 typedef struct LEXEME_WORD {
-    unsigned int line_no;
-    unsigned int size_of;
-    const char* data;
+    unsigned int line_no;               // line number that we are currently on
+    unsigned int size_of;               // size of this lexeme in nytes
+    const char* data;                   // data stored (associated char*)
 } LexemeWrd, LexemeWord;
 
 void __print_lexeme_word(struct LEXEME_WORD* w);
