@@ -127,6 +127,7 @@ typedef enum LEXEME_LITERAL_TYPE{
 typedef struct LEXEME_LITERAL{
     enum LEXEME_LITERAL_TYPE type;      // type of literal that we hold
     unsigned int line_no;               // line number associated with this
+    unsigned int char_no;               // char numner associated with this
     unsigned int size_of;               // size of this lexeme in num bytes
     const char* data;                   // data to store (associated char*)
 } LexemeLit, LexemeLiteral;
@@ -140,6 +141,7 @@ void __print_lexeme_literal(struct LEXEME_LITERAL* l);
 // take out key-words lables or other kinds of entitties.
 typedef struct LEXEME_WORD {
     unsigned int line_no;               // line number that we are currently on
+    unsigned int char_no;               // char numner associated with this
     unsigned int size_of;               // size of this lexeme in nytes
     const char* data;                   // data stored (associated char*)
 } LexemeWrd, LexemeWord;

@@ -27,15 +27,15 @@ void __print_lexeme_literal(struct LEXEME_LITERAL* l) {
         case LITERAL_NONE   : __literal_type_string = "LITERAL_NONE"   ; break;
     };
 
-    DEBUG("%([  LEXER  ]%) found %(LEXEME_LIT( type:%s )%) at %d:%d with value=%(%s%)\n",{
+    DEBUG("%([  LEXER  ]%) found %(LEXEME_LIT( type:%s )%) at %d:%d-%d with value=%(%s%)\n",{
 
-    }, __literal_type_string, l->line_no, l->size_of, l->data);
+    }, __literal_type_string, l->line_no, l->char_no, l->size_of, l->data);
 }
 
 void __print_lexeme_word(struct LEXEME_WORD* w){
-    DEBUG("%([  LEXER  ]%) found %(LEXEME_WRD(%s)%) at %d:%d\n",{
+    DEBUG("%([  LEXER  ]%) found %(LEXEME_WRD(%s)%) at %d:%d-%d\n",{
 
-    }, w->data, w->line_no, w->size_of);
+    }, w->data, w->line_no, w->char_no, w->size_of);
 }
 // FIXME: just revamp how we are to deal with chrachters and collection process
 
@@ -74,7 +74,7 @@ bool check_against_wrd(char c) {
 }
 
 
-char* collect_upto(FILE* source, char upto) {
+char* collect_upto(FILE* source, char upto, bool consume) {
     long int s = ftell(source) - 1;
     char c;
     while ((c = fgetc(source)) != EOF) {
@@ -86,7 +86,7 @@ char* collect_upto(FILE* source, char upto) {
 
     char* buffer = malloc(sizeof(char)*size);
     fseek(source, s, SEEK_SET);
-    if (c == ' ' || c == '\n'){
+    if (!consume){
         fgets(buffer, size - 1, source);
         fseek(source, e - 1, SEEK_SET);
     } else {
@@ -114,29 +114,37 @@ char* collect_till(FILE* source, bool (*cond)(char)){
     return buffer;
 }
 
+static int lno = 0;
+static int cno = 0;
 
 bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
     char p = EOF;
     char c = EOF;
     while ((c = fgetc(source)) != EOF){
         bool lexer_found_token = false;
+        cno++;
+
         if (check_against_ign(c)) {
+            if (CHECK('\n')){
+                lno++;
+                cno=0;
+            }
             // if (c == '\n') lfprintf(LEVEL_ERR, stderr, "\\N");
             // lfprintf(LEVEL_ERR, stderr, "%c", c);
-            // FIXME: may require some sking of behaviour
+            // FIXME: may require some kind of behaviour
         } else if (check_against_pun(c)) {
             // lfprintf(LEVEL_ERR, stderr, "%[%c%]", c);
             result->type = LEXEME_PUN;
-            result->as.pun.line_no = 0; 
-            result->as.pun.char_no = 0; 
+            result->as.pun.line_no = lno;
+            result->as.pun.char_no = cno; 
             result->as.pun.data = c; 
             __print_lexeme_punctuation(&result->as.pun);
             lexer_found_token = true;
         } else if (check_against_opr(c)) {
-            lfprintf(LEVEL_ERR, stderr, "%[%c%]", c);
+            // lfprintf(LEVEL_ERR, stderr, "%[%c%]", c);
             result->type = LEXEME_OPR;
-            result->as.opr.line_no = 0;
-            result->as.opr.char_no = 0;
+            result->as.opr.line_no = lno;
+            result->as.opr.char_no = cno;
             result->as.opr.data = c;
             __print_lexeme_operation(&result->as.opr);
             lexer_found_token = true;
@@ -144,6 +152,7 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
                 PREVS(' ') || PREVS('\n') || PREVS(EOF)
             )) {
             char e = CHECK('#') ? '\n' : CHECK('0') ? ' ' : c;
+            bool b = CHECK('#') || CHECK('0')  ? false : true;
             switch (c) {
                 case '"': result->as.lit.type = LITERAL_STRING ; break;
                 case '0': result->as.lit.type = LITERAL_NUMERIC; break;
@@ -151,18 +160,22 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
                 default : result->as.lit.type = LITERAL_NONE   ; break;
             };
             result->type = LEXEME_LIT;
-            result->as.lit.line_no = 0;
-            result->as.lit.size_of = 0;
-            result->as.lit.data = collect_upto(source, e);
+            result->as.lit.line_no = lno;
+            result->as.lit.char_no = cno;
+            result->as.lit.data = collect_upto(source, e, b);
+            result->as.lit.size_of = strlen(result->as.lit.data);
+            cno += result->as.lit.size_of - 1;
             // lfprintf(LEVEL_WRN, stderr, "%[%s%]", result->as.lit.data);
             __print_lexeme_literal(&result->as.lit);
             lexer_found_token = true;
         } else {
             // lfprintf(LEVEL_ERR, stderr, "%[%c%]", c);
             result->type = LEXEME_WRD;
-            result->as.wrd.line_no = 0;
-            result->as.wrd.size_of = 0;
+            result->as.wrd.line_no = lno;
+            result->as.wrd.char_no = cno;
             result->as.wrd.data = collect_till(source, check_against_wrd);
+            result->as.wrd.size_of = strlen(result->as.wrd.data);
+            cno += result->as.wrd.size_of;
             // lfprintf(LEVEL_INF, stderr, "%[%s%]", result->as.wrd.data);
             __print_lexeme_word(&result->as.wrd);
             lexer_found_token = true;
