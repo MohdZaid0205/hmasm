@@ -33,7 +33,7 @@
 // owed to be multiline. <detailed-fix-description>								|
 // -----------------------------------------------------------------------------+
 #define EXCEPTION(what, body, ...) {											\
-	ERR("%([ EXCEPTION ]%): ");													\
+	ERR("%[[ EXCEPTION ]%]: ");													\
 	ERR(what, __VA_ARGS__	 );													\
 	{ body }																	\
 }
@@ -49,7 +49,7 @@
 // to avoid this warning.														|
 // -----------------------------------------------------------------------------+
 #define WARNING(what, body, ...){												\
-	WRN("%({  WARNING  }%): ");													\
+	WRN("%[{  WARNING  }%]: ");													\
 	WRN(what, __VA_ARGS__    );													\
 	{ body }																	\
 }
@@ -62,7 +62,7 @@
 // any peice of text is allowed here											|
 // -----------------------------------------------------------------------------+
 #define INFORMATION(what, body, ...){											\
-	INF("%((INFORMATION)%): ");													\
+	INF("%[(INFORMATION)%]: ");													\
 	INF(what, __VA_ARGS__    );													\
 	{ body }																	\
 }
@@ -75,7 +75,7 @@
 // any peice of text is allowed here											|
 // -----------------------------------------------------------------------------+
 #define DEBUG(what, body, ...){													\
-	DBG("%(<   DEBUG   >%): ");													\
+	DBG("%[<   DEBUG   >%]: ");													\
 	DBG(what, __VA_ARGS__    );													\
 	{ body }																	\
 }
