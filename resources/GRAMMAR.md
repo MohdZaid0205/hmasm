@@ -53,25 +53,62 @@ Instruction `pop` is to be translated to multiple instructions that facilitate p
 
 ## Arithmatic operation instructions
 
-> It is important to note that these instruction may ser carry flag in cpu
+> It is important to note that these instruction may ser carry flag in cpu.
+> All of specified functions update value in destination register with new value.
 
 ### `add` and `sub` instructions
 
 ```asm
 add where?<>@@, what?<>@@##
+;; adds contents of source `what` to contents of distination `where`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
 ```
+
+---
 
 ```asm
 sub where?<>@@, what?<>@@##
+;; subtracts contents of source `what` from contents of distination `where`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
 ```
 
 ### `mul` and `div` instructions
 
 ```asm
 mul where?<>@@, what?<>@@##
+;; multiplies contents of source `what` with contents of distination `where`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
 ```
+
+---
 
 ```asm
 div where?<>@@, what?<>@@##
+;; divides contents of source `what` by contents of distination `where`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
 ```
 
