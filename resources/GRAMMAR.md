@@ -53,7 +53,7 @@ Instruction `pop` is to be translated to multiple instructions that facilitate p
 
 ## Arithmatic operation instructions
 
-> It is important to note that these instruction may ser carry flag in cpu.
+> It is important to note that these instruction may ser carry flag in cpu. \
 > All of specified functions update value in destination register with new value.
 
 ### `add` and `sub` instructions
@@ -111,4 +111,6 @@ div where?<>@@, what?<>@@##
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
+
+> TODO: implement widening operations support (maybe in distant future).
 
