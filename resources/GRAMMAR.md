@@ -59,7 +59,7 @@ Instruction `pop` is to be translated to multiple instructions that facilitate p
 ### `add` and `sub` instructions
 
 ```asm
-add where?<>@@, what?<>@@##
+add where?<>@@, what?<>@@##, ...
 ;; adds contents of source `what` to contents of distination `where`
 ;; source:
 ;;      <> : source may be a register.
@@ -70,10 +70,12 @@ add where?<>@@, what?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
+> `where? = what? + ...?`
+
 ---
 
 ```asm
-sub where?<>@@, what?<>@@##
+sub where?<>@@, what?<>@@##, ...
 ;; subtracts contents of source `what` from contents of distination `where`
 ;; source:
 ;;      <> : source may be a register.
@@ -83,6 +85,8 @@ sub where?<>@@, what?<>@@##
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
+
+> `where? = what? - (summation of ...?)`
 
 ### `mul` and `div` instructions
 
@@ -98,6 +102,8 @@ mul where?<>@@, what?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
+> `where? = what? * ...`
+
 ---
 
 ```asm
@@ -112,5 +118,100 @@ div where?<>@@, what?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
+> `where? = what? / (product of ...?)`
+
 > TODO: implement widening operations support (maybe in distant future).
+
+## Bitwise operations instuctions
+
+```asm
+and what?<>@@, with?<>@@##, ...
+;; biwise and of destination `what` with source `with`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = with? & ...?`
+
+---
+
+```asm
+or what?<>@@, with?<>@@##
+;; bitwise or of destination `what` with source `with`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = with? | ...?`
+
+---
+
+```asm
+xor what?<>@@, with?<>@@##
+;; biwise xor of destination `what` with source `with`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = with? ^ ...?`
+
+---
+
+```asm
+not what?<>@@
+;; biwise not of destination `what`
+;; source:
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = ! what?`
+
+## shifting operations
+
+```asm
+shl what?<>@@, by?<>@@##
+;; shift left destination `what` by source `by`
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = what? << by?`
+
+---
+
+```asm
+shr what?<>@@, by?<>@@##
+;; shift left destination `what` by source `by`
+;;      <> : source may be a register.
+;;      @@ : source may be an address.
+;;      ## : source may be a value itself.
+;; destination:
+;;      <> : destination may be a register.
+;;      @@ : destination may be an address.
+```
+
+> `what? = what? >> by?`
 
