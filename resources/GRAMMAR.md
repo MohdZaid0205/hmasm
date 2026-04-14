@@ -215,3 +215,26 @@ shr what?<>@@, by?<>@@##
 
 > `what? = what? >> by?`
 
+## Branching and comparisions statements
+
+### conditionals
+
+```asm
+eq  what?<>@@, to?<>@@##
+neq what?<>@@, to?<>@@##
+```
+
+---
+
+```asm
+g   what?<>@@, than?<>@@##
+geq what?<>@@, than?<>@@##
+```
+
+---
+
+```asm
+s   what?<>@@, than?<>@@##
+seq what?<>@@, than?<>@@##
+```
+

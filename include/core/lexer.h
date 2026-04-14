@@ -16,7 +16,7 @@
 
 // enum ASSEMBLER_LEXEME_TYPE containing possible types of lexeme that can be 
 // constructed using ASSEMBLER_LEXER_H lexer aimed to seperate charachters.
-typedef enum ASSEMBLER_LEXEME_TYPE {
+typedef enum LEXEME_TYPE {
 	LEXEME_PUN,							// LEXEME type found to be PUNCTUATION
 	LEXEME_OPR,							// LEXEME type found to be OPERATION
 	LEXEME_LIT,							// LEXEME type found to be LITERAL
@@ -166,7 +166,7 @@ void __print_lexeme_word(struct LEXEME_WORD* w);
 //
 // lexeme token for LEXEME_KEY has not been defined (look at CHANGE_LOG) above
 typedef struct LEXEME_TOKEN{
-    enum ASSEMBLER_LEXEME_TYPE type;    // holds the type of current lexeme
+    enum LEXEME_TYPE type;              // holds the type of current lexeme
     union {
         struct LEXEME_PUNCTUATION pun;  // read lexeme as a punctuation
         struct LEXEME_OPERATION   opr;  // read lexeme as a operation
