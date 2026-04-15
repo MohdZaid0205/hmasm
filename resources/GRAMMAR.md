@@ -238,3 +238,9 @@ s   what?<>@@, than?<>@@##
 seq what?<>@@, than?<>@@##
 ```
 
+---
+
+```asm
+jmp where?<>@@##
+jic where?<>@@##
+```
