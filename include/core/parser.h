@@ -47,7 +47,21 @@ typedef enum INSTRUCTION_TYPE {
     INSTRUCTION_JIC,    // jump if previous condition
 } InstructionType, InstType;
 
+typedef enum INSTRUCTION_COMPONENT_TYPE {
+    INSTRUCTION_COMPONENT_REGISTER_T,
+    INSTRUCTION_COMPONENT_ADDRESS_T,
+    INSTRUCTION_COMPONENT_IMMIDIATE_T,
+} InstructionComponentType, InstComponentType;
 
+
+typedef struct INSTRUCTION_COMPONENT {
+    enum INSTRUCTION_COMPONENT_TYPE type;
+    union {
+        // struct INSTRUCTION_COMPONENT_REGISTER    reg;
+        // struct INSTRUCTION_COMPONENT_ADDRESS     adr;
+        // struct INSTRUCTION_COMPONENT_IMMIDIATE   imm;
+    } as;
+} InstructionComponent, InstComponent;
 
 
 #endif
