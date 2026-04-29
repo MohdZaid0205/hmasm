@@ -4,7 +4,7 @@
 void riscv32_instruction();
 
 static const struct ASSEMBLER_ISA architecture = {
-    .name = "Worm",
+    .name = "worm",
     .desc = "Worm Instruction Set (for simple virtual machine)",
     .instruction = riscv32_instruction,
 };
