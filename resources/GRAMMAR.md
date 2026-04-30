@@ -2,27 +2,27 @@
 
 Note the following symbols and their associated meanings:
 * `<...>` represents register only argument.
-* `#...#` repersents immidiate only argument.
+* `#...#` represents immediate only argument.
 * `@...@` represents address only argument.
 * `?...`  represents unknown followed by possible choices.
 
 ## `load` or `move` instruction
 
 ```asm
-move where?@@<>, what?<>@@##
-;; moves from source provided in `what` caluse to destiniation in `where` clause
+move where?<>@@, what?<>@@##
+;; moves from source provided in `what` clause to destination in `where` clause
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
-;;      ## : source may be a value iteself.
+;;      ## : source may be a value itself.
 ;; destination:
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
 
-Instruction is type indidpendent, depending upon type of `what?...` and `where?...` instruction is to be expanded into respective handler for `#intiger#` or `<register>` or `... (other supported types)`. This specific details shall be provided by `isa-<type>` in case of unsupported types passed as parametere, an (asseble-time) excecption is to be shown.
+Instruction is type independent, depending upon type of `what?...` and `where?...` the instruction is to be expanded into a respective handler for `#integer#` or `<register>` or other supported types. These specific details shall be provided by `isa-<type>`. In case of unsupported types passed as parameters, an assemble-time exception is to be shown.
 
-## `push` and `pop` instruction
+## `push` and `pop` instructions
 
 ```asm
 push what?<>@@##
@@ -30,12 +30,12 @@ push what?<>@@##
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
-;;      ## : source may be a value iteself.
+;;      ## : source may be a value itself.
 ;; destination:
 ;;      @@ : top of stack (implicit).
 ```
 
-Instruction `push` is to be translated to multiple instructions that facilitate pushing to the top of stack in required isa, otherwise use provided push instuction in that isa.
+Instruction `push` is to be translated to multiple instructions that facilitate pushing to the top of stack in the required ISA, otherwise use the provided `push` instruction in that ISA.
 
 ---
 
@@ -49,18 +49,26 @@ pop where?<>@@
 ;;      @@ : destination may be an address.
 ```
 
-Instruction `pop` is to be translated to multiple instructions that facilitate pushing to the top of stack in required isa, otherwise use provided pop instuction in that isa.
+Instruction `pop` is to be translated to multiple instructions that facilitate popping from the top of stack in the required ISA, otherwise use the provided `pop` instruction in that ISA.
 
-## Arithmatic operation instructions
+## Arithmetic operation instructions
 
-> It is important to note that these instruction may ser carry flag in cpu. \
-> All of specified functions update value in destination register with new value.
+> It is important to note that these instructions may set carry flag in CPU. \
+> All specified instructions update the value in the destination with the new value.
+
+```asm
+inc destination?<>@@
+;; increments destination by 1. shorthand to avoid `add dest, dest, #1#`.
+
+dec destination?<>@@
+;; decrements destination by 1. shorthand to avoid `sub dest, dest, #1#`.
+```
 
 ### `add` and `sub` instructions
 
 ```asm
-add where?<>@@, what?<>@@##, ...
-;; adds contents of source `what` to contents of distination `where`
+add destination?<>@@, source1?<>@@##, source2?<>@@##
+;; adds source1 and source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -69,14 +77,12 @@ add where?<>@@, what?<>@@##, ...
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
-
-> `where? = what? + ...?`
 
 ---
 
 ```asm
-sub where?<>@@, what?<>@@##, ...
-;; subtracts contents of source `what` from contents of distination `where`
+sub destination?<>@@, source1?<>@@##, source2?<>@@##
+;; subtracts source2 from source1, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -85,14 +91,12 @@ sub where?<>@@, what?<>@@##, ...
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
-
-> `where? = what? - (summation of ...?)`
 
 ### `mul` and `div` instructions
 
 ```asm
-mul where?<>@@, what?<>@@##
-;; multiplies contents of source `what` with contents of distination `where`
+mul destination?<>@@, source1?<>@@##, source2?<>@@##
+;; multiplies source1 by source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -101,14 +105,12 @@ mul where?<>@@, what?<>@@##
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
-
-> `where? = what? * ...`
 
 ---
 
 ```asm
-div where?<>@@, what?<>@@##
-;; divides contents of source `what` by contents of distination `where`
+div destination?<>@@, source1?<>@@##, source2?<>@@##
+;; divides source1 by source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -117,16 +119,14 @@ div where?<>@@, what?<>@@##
 ;;      <> : destination may be a register.
 ;;      @@ : destination may be an address.
 ```
-
-> `where? = what? / (product of ...?)`
 
 > TODO: implement widening operations support (maybe in distant future).
 
-## Bitwise operations instuctions
+## Bitwise operation instructions
 
 ```asm
-and what?<>@@, with?<>@@##, ...
-;; biwise and of destination `what` with source `with`
+and destination?<>@@, source1?<>@@##, source2?<>@@##
+;; bitwise AND of source1 and source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -136,13 +136,11 @@ and what?<>@@, with?<>@@##, ...
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = with? & ...?`
-
 ---
 
 ```asm
-or what?<>@@, with?<>@@##
-;; bitwise or of destination `what` with source `with`
+or destination?<>@@, source1?<>@@##, source2?<>@@##
+;; bitwise OR of source1 and source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -152,13 +150,11 @@ or what?<>@@, with?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = with? | ...?`
-
 ---
 
 ```asm
-xor what?<>@@, with?<>@@##
-;; biwise xor of destination `what` with source `with`
+xor destination?<>@@, source1?<>@@##, source2?<>@@##
+;; bitwise XOR of source1 and source2, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -168,13 +164,11 @@ xor what?<>@@, with?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = with? ^ ...?`
-
 ---
 
 ```asm
-not what?<>@@
-;; biwise not of destination `what`
+not destination?<>@@, source?<>@@
+;; bitwise NOT of source, storing result in destination.
 ;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
@@ -183,13 +177,15 @@ not what?<>@@
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = ! what?`
+> Note: `not` is a unary operation. Immediates are not valid as source since negating a
+> compile-time constant should be folded by the assembler before emission.
 
-## shifting operations
+## Shifting operations
 
 ```asm
-shl what?<>@@, by?<>@@##
-;; shift left destination `what` by source `by`
+shl destination?<>@@, source1?<>@@##, source2?<>@@##
+;; shift source1 left by source2 bits, storing result in destination.
+;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
 ;;      ## : source may be a value itself.
@@ -198,13 +194,14 @@ shl what?<>@@, by?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = what? << by?`
+> `destination = source1 << source2`
 
 ---
 
 ```asm
-shr what?<>@@, by?<>@@##
-;; shift left destination `what` by source `by`
+shr destination?<>@@, source1?<>@@##, source2?<>@@##
+;; shift source1 right by source2 bits, storing result in destination.
+;; source:
 ;;      <> : source may be a register.
 ;;      @@ : source may be an address.
 ;;      ## : source may be a value itself.
@@ -213,34 +210,132 @@ shr what?<>@@, by?<>@@##
 ;;      @@ : destination may be an address.
 ```
 
-> `what? = what? >> by?`
+> `destination = source1 >> source2`
 
-## Branching and comparisions statements
+## Branching and comparison instructions
 
-### conditionals
+### Conditionals
+
+All conditional branch instructions take two operands to compare and a label or address to jump to if the condition is true.
 
 ```asm
-eq  what?<>@@, to?<>@@##
-neq what?<>@@, to?<>@@##
+beq  lhs?<>@@##, rhs?<>@@##, target?<>@@##
+bneq lhs?<>@@##, rhs?<>@@##, target?<>@@##
+;; compares lhs and rhs, branches to target based on equality.
+;; beq  : branch if lhs == rhs.
+;; bneq : branch if lhs != rhs.
+;; lhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; rhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; target:
+;;      <> : may be a register holding the jump address.
+;;      @@ : may be a direct address.
+;;      ## : may be an immediate label or offset.
 ```
 
 ---
 
 ```asm
-g   what?<>@@, than?<>@@##
-geq what?<>@@, than?<>@@##
+bg   lhs?<>@@##, rhs?<>@@##, target?<>@@##
+bgeq lhs?<>@@##, rhs?<>@@##, target?<>@@##
+;; compares lhs and rhs, branches to target based on greater-than relation.
+;; bg   : branch if lhs >  rhs.
+;; bgeq : branch if lhs >= rhs.
+;; lhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; rhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; target:
+;;      <> : may be a register holding the jump address.
+;;      @@ : may be a direct address.
+;;      ## : may be an immediate label or offset.
 ```
 
 ---
 
 ```asm
-s   what?<>@@, than?<>@@##
-seq what?<>@@, than?<>@@##
+bs   lhs?<>@@##, rhs?<>@@##, target?<>@@##
+bseq lhs?<>@@##, rhs?<>@@##, target?<>@@##
+;; compares lhs and rhs, branches to target based on smaller-than relation.
+;; bs   : branch if lhs <  rhs.
+;; bseq : branch if lhs <= rhs.
+;; lhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; rhs:
+;;      <> : may be a register.
+;;      @@ : may be an address.
+;;      ## : may be a value itself.
+;; target:
+;;      <> : may be a register holding the jump address.
+;;      @@ : may be a direct address.
+;;      ## : may be an immediate label or offset.
 ```
 
 ---
 
 ```asm
 jmp where?<>@@##
-jic where?<>@@##
+;; unconditional jump to target address.
+;; where:
+;;      <> : may be a register holding the jump address.
+;;      @@ : may be a direct address.
+;;      ## : may be an immediate label or offset.
 ```
+
+---
+
+```asm
+call target?<>@@##
+;; pushes the return address (next instruction) onto the stack and jumps to target.
+;; essential for implementing functions and subroutines.
+
+ret
+;; pops the return address from the stack and jumps to it.
+;; counterpart to call.
+```
+
+
+
+## Miscellaneous Instructions
+
+```asm
+nop
+;; no operation. consumes one CPU cycle and does nothing.
+;; used for timing alignment, pipeline padding, or busy-wait loops.
+;; takes no operands.
+```
+
+---
+
+```asm
+hlt
+;; halts the CPU. execution stops until an external interrupt resumes it,
+;; or permanently depending on ISA behaviour.
+;; takes no operands.
+```
+
+---
+
+```asm
+int
+int interrupt##
+;; invoke interrupts.
+
+sti
+;; enable interrupts.
+
+cli
+;; disable interrupts.
+```
+
