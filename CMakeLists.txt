@@ -4,8 +4,15 @@ set(PROJ_NAME "HMASM"           )   # this is implementation of assembler.
 set(PROJ_LANG LANGUAGES C       )   # to be written in pure `C` no external libs.
 set(PROJ_VERS VERSION  0.00.3   )   # need to make sure to change this version.
 set(PROJ_DESC DESCRIPTION "implementation of assembler"         )
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(${PROJ_NAME} ${PROJ_DESC} ${PROJ_LANG} ${PROJ_VERS})
+add_custom_target(
+    copy_compile_commands ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_BINARY_DIR}/compile_commands.json"
+    "${CMAKE_SOURCE_DIR}/compile_commands.json"
+)
 
 # For LAYER-1 (contains lexer-parser and IR generation logic) as executable **
 # ** -> executable has to be statically liked with one format and one isa
