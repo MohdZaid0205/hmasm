@@ -20,11 +20,13 @@ typedef enum INSTRUCTION_TYPE {
     INSTRUCTION_PUSH,   // stack push
     INSTRUCTION_POP,    // stack pop
     
-    // BINARY OPERATIONS
+    // ARITHMATIC and BINARY OPERATIONS
     INSTRUCTION_ADD,    // intiger addition
     INSTRUCTION_SUB,    // intiger substraction
     INSTRUCTION_MUL,    // intiger multiplication
     INSTRUCTION_DIV,    // intiger divison
+    INSTRUCTION_INC,    // increment by 1
+    INSTRUCTION_DEC,    // decrement by 1
 
     // BITWISE OPERATIONS
     INSTRUCTION_AND,    // bitwise and
@@ -35,16 +37,24 @@ typedef enum INSTRUCTION_TYPE {
     // SHIFTING OPERATIONS
     INSTRUCTION_SHR,    // shift right
     INSTRUCTION_SHL,    // shift left
-    
+
     // BRANCHING and JUMPS
-    INSTRUCTION_EQ,     // condition: equal
-    INSTRUCTION_NEQ,    // condition: not equal
-    INSTRUCTION_G,      // condidion: greater
-    INSTRUCTION_GEQ,    // condition: greter or equal
-    INSTRUCTION_S,      // condition: smaller
-    INSTRUCTION_SEQ,    // condition: smaller or equal
+    INSTRUCTION_BEQ,    // condition: equal
+    INSTRUCTION_BNEQ,   // condition: not equal
+    INSTRUCTION_BG,     // condidion: greater
+    INSTRUCTION_BGEQ,   // condition: greter or equal
+    INSTRUCTION_BS,     // condition: smaller
+    INSTRUCTION_BSEQ,   // condition: smaller or equal
     INSTRUCTION_JMP,    // jumps unconditionally
-    INSTRUCTION_JIC,    // jump if previous condition
+    INSTRUCTION_CALL,   // call to specific lable
+    INSTRUCTION_RET,    // return to last caller
+
+    // MISCELLANEOUS
+    INSTRUCTION_NOP,    // no operation
+    INSTRUCTION_HLT,    // halt execution
+    INSTRUCTION_INT,    // interrupt
+    INSTRUCTION_STI,    // stop interrupts
+    INSTRUCTION_CLI,    // clear interrupts
 } InstructionType, InstType;
 
 typedef enum INSTRUCTION_COMPONENT_TYPE {
