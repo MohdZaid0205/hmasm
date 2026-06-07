@@ -32,10 +32,6 @@ file(GLOB PROJ_INC_FILES "${PROJ_CORE_INC_DIR}/*.h" "${PROJ_SUPPORT_INC_DIR}/*.h
 file(GLOB PROJ_ISA_FILES "${PROJ_ISA_SRC_DIR}/*.c")
 file(GLOB PROJ_FMT_FILES "${PROJ_FMT_SRC_DIR}/*.c")
 
-# by default we compile all default isa(s) and format(s) otherwise user defined
-set(DEFINE_FMT "elf;pc;bin"         )
-set(DEFINE_ISA "i386;riscv32;arm32" )
-
 if(DEFINED TARGET_ISA)
     set(ISA_TO_BUILD ${TARGET_ISA}  )
 else()
