@@ -23,6 +23,7 @@ typedef enum LEXEME_TYPE {
 	LEXEME_WRD,							// LEXEME type found to be WORD
 } LexemeType;
 
+
 // [ IDEA ] --------------------------------------------------------------------+
 // So we first define all structures that store corresponding lexeme and then	|
 // use those structures and directly cast them to required types that we		|
@@ -67,7 +68,6 @@ typedef struct LEXEME_PUNCTUATION{
     char data;                          // data to store (associated char).
 } LexemePun, LexemePunctuation;
 
-void __print_lexeme_punctuation(struct LEXEME_PUNCTUATION* p);
 
 // LEXEME_OPERATION aka LexemeOpr & LexemeOperation
 // LEXEME_OPERATION is representation of operations that is allowed inside assem-
@@ -92,7 +92,6 @@ typedef struct LEXEME_OPERATION{
     char data;                          // data to store (associated symbol)
 } LexemeOpr, LexemeOperation;
 
-void __print_lexeme_operation(struct LEXEME_OPERATION* o);  // for debug purposes
 
 // LEXEME_LITERAL_TYPE aka LexemeLitType & LexemeLiteralType
 // To represent type of literal that has been encountered in process of finding
@@ -106,6 +105,7 @@ typedef enum LEXEME_LITERAL_TYPE{
     LITERAL_NONE,                       // dont ask me why im writing this :-(
     // LITERAL_NONE is suppoesed to be used for both labels and keywords intially
 } LexemeLitType, LexemeLiteralType;
+
 
 // LEXEME_LITERAL aka LexemeLit & LexemeLiteral
 // LEXEME_LITERAL is representation of literal types that has been defined within
@@ -132,8 +132,6 @@ typedef struct LEXEME_LITERAL{
     const char* data;                   // data to store (associated char*)
 } LexemeLit, LexemeLiteral;
 
-void __print_lexeme_literal(struct LEXEME_LITERAL* l);
-
 
 // LEXEME_WORD aska LexemeWrd & LexemeWord
 // LEXEME_WORD is prepresentation of constant size blocks of charachters that are
@@ -146,7 +144,6 @@ typedef struct LEXEME_WORD {
     const char* data;                   // data stored (associated char*)
 } LexemeWrd, LexemeWord;
 
-void __print_lexeme_word(struct LEXEME_WORD* w);
 
 // LEXEME_TOKEN aka LexemeToken or Lexeme
 // LEXEME_TOKEN holds type of lexeme and associated information to that lexeme
@@ -175,7 +172,6 @@ typedef struct LEXEME_TOKEN{
     } as;
 } LexemeToken, Lexeme;
 
-void __print_lexeme_token(struct LEXEME_TOKEN* token);
 
 // FUNCTIONS_FOR_LEXICAL_ANALYSIS
 // following are declarations of all functions for lexical analysis of source

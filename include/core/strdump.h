@@ -72,4 +72,16 @@
 #define ARGVS_RESP_FTYPE "flag -[-f]ormat IGNORED"
 #define ARGVS_RESP_ITYPE "flag -[-i]sa IGNORED"
 
+// lexer.h LEXER_DEBUG_PUNCTUATION(punctuation)
+#define LEXER_DEBUG_PUN "%d:%d PUNCTUATION(%(\"%c\"%))" NLINE
+
+// lexer.h LEXER_DEBUG_OPERATION(operation)
+#define LEXER_DEBUG_OPR "%d:%d OPERATION(%(\"%c\"%))" NLINE
+
+// lexer.h LEXER_DEBUG_LITERAL(literal)
+#define LEXER_DEBUG_LIT "%d:%d-%d LITERAL(%(\"%s\"%))" NLINE
+
+// lexer.h LEXER_DEBUG_WORD(word)
+#define LEXER_DEBUG_WRD "%d:%d-%d WORD(%(\"%s\"%))" NLINE
+
 #endif
