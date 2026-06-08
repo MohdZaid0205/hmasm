@@ -63,13 +63,27 @@ typedef enum INSTRUCTION_COMPONENT_TYPE {
     INSTRUCTION_COMPONENT_IMMIDIATE_T,
 } InstructionComponentType, InstComponentType;
 
+typedef struct INSTRUCTION_COMPONENT_REGISTER {
+    char* name;         // name of required register
+    int   size;         // to check for size mismatches
+} InstructionComponentRegister, InstRegister, Reg;
+
+typedef struct INSTRUCTION_COMPONENT_ADDRESS {
+    char* name;         // name of register with address
+    char* offset;       // provided offset to address
+} InstructionComponentAddress, InstAddress, Adr;
+
+typedef struct INSTRUCTION_COMPONENT_IMMIDIATE {
+    char* value;        // if direct value was provided
+    char* lable;        // if a lable was provided
+} InstructionComponentImmidiate, InstImmidiate, Imm;
 
 typedef struct INSTRUCTION_COMPONENT {
     enum INSTRUCTION_COMPONENT_TYPE type;
     union {
-        // struct INSTRUCTION_COMPONENT_REGISTER    reg;
-        // struct INSTRUCTION_COMPONENT_ADDRESS     adr;
-        // struct INSTRUCTION_COMPONENT_IMMIDIATE   imm;
+        struct INSTRUCTION_COMPONENT_REGISTER    reg;
+        struct INSTRUCTION_COMPONENT_ADDRESS     adr;
+        struct INSTRUCTION_COMPONENT_IMMIDIATE   imm;
     } as;
 } InstructionComponent, InstComponent;
 
