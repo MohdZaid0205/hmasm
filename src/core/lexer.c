@@ -6,16 +6,16 @@
 
 #ifdef LEXER_DEBUG
     #define LEXER_DEBUG_PUNCTUATION(p)                                          \
-        DEBUG(LEXER_DEBUG_PUN, {}, p->line_no, p->char_no, p->data)
+        DEBUG(LEXER_DEBUG_PUN, {}, p.line_no, p.char_no, p.data)
 
     #define LEXER_DEBUG_OPERATION(o)                                            \
-        DEBUG(LEXER_DEBUG_OPR, {}, o->line_no, o->char_no, o->data)
+        DEBUG(LEXER_DEBUG_OPR, {}, o.line_no, o.char_no, o.data)
 
     #define LEXER_DEBUG_LITERAL(l)                                              \
-        DEBUG(LEXER_DEBUG_LIT, {}, l->line_no, l->char_no, l->size_of, l->data)
+        DEBUG(LEXER_DEBUG_LIT, {}, l.line_no, l.char_no, l.size_of, l.data)
 
     #define LEXER_DEBUG_WORD(w)                                                 \
-        DEBUG(LEXER_DEBUG_WRD, {}, w->line_no, w->char_no, w->size_of, w->data)
+        DEBUG(LEXER_DEBUG_WRD, {}, w.line_no, w.char_no, w.size_of, w.data)
 #else
     #define LEXER_DEBUG_PUNCTUATION(x)  // LEXER_DEBUG_PUNCTUATION(x)
     #define LEXER_DEBUG_OPERATION(x)    // LEXER_DEBUG_OPERATION(x)
@@ -148,9 +148,10 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
             lexer_found_token = true;
         }
         else if (__check_against_lit(c)
-                || PREVS(' ')
+                &&(PREVS(' ')
                 || PREVS('\n')
-                || PREVS(EOF)) {
+                || PREVS(EOF))
+            ){
             char e = CHECK('#') || CHECK(';') ? '\n' : CHECK('0') ? ' ': c;
             bool b = CHECK('#') || CHECK(';') || CHECK('0') ? false : true;
             switch (c) {

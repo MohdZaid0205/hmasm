@@ -8,7 +8,8 @@
         "generator": "Ninja",
         "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
         "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Debug"
+          "CMAKE_BUILD_TYPE": "Debug",
+          "LEXER_DEBUG": "ON"
         },
         "condition": {
           "type": "equals",
@@ -37,7 +38,8 @@
         "binaryDir": "${sourceDir}/out/Ubuntu/build/${presetName}",
         "cacheVariables": {
           "CMAKE_BUILD_TYPE": "Debug",
-          "CMAKE_C_COMPILER": "clang"
+          "CMAKE_C_COMPILER": "clang",
+          "LEXER_DEBUG": "ON"
         },
         "condition": {
           "type": "equals",
