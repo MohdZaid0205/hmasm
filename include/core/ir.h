@@ -73,6 +73,12 @@ typedef struct INSTRUCTION_COMPONENT {
     } as;
 } InstructionComponent, InstComponent;
 
+typedef struct INSTRUCTION {
+    char* name;
+    struct INSTRUCTION_COMPONENT rd;
+    struct INSTRUCTION_COMPONENT rs1;
+    struct INSTRUCTION_COMPONENT rs2;
+} Instruction;
 
 
 #endif
