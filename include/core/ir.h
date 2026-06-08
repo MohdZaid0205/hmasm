@@ -120,6 +120,7 @@ typedef struct INSTRUCTION_COMPONENT {
 // the mnemonic name alongside up to three operands (destination and sources).
 typedef struct INSTRUCTION {
     char* name;
+    enum INSTRUCTION_TYPE type;
     struct INSTRUCTION_COMPONENT rd;
     struct INSTRUCTION_COMPONENT rs1;
     struct INSTRUCTION_COMPONENT rs2;
