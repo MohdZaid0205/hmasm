@@ -39,7 +39,9 @@ bool __check_against_pun(char c) {
     return CHECK(',') 
         || CHECK(':') 
         || CHECK('.')
-        || CHECK('%');
+        || CHECK('%')
+        || CHECK('=')
+        || CHECK('@');
 }
 
 bool __check_against_opr(char c) {
@@ -149,8 +151,8 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
                 || PREVS(' ')
                 || PREVS('\n')
                 || PREVS(EOF)) {
-            char e = CHECK('#') ? '\n' : CHECK('0') ? ' ': c;
-            bool b = CHECK('#') || CHECK('0')  ? false : true;
+            char e = CHECK('#') || CHECK(';') ? '\n' : CHECK('0') ? ' ': c;
+            bool b = CHECK('#') || CHECK(';') || CHECK('0') ? false : true;
             switch (c) {
                 case '"': result->as.lit.type = LITERAL_STRING ; break;
                 case '0': result->as.lit.type = LITERAL_NUMERIC; break;
