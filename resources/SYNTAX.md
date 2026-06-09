@@ -38,3 +38,20 @@ add  temp, value, 0x10
 
 > NOTE: This definition of register names is only present up to the intermediate representation of the assembly. After that, depending upon the target architecture, all such definitions are resolved by the assembler and removed.
 
+## 3. Sections and Attributes
+
+`hmasm` uses format-agnostic sections that allow optional permission flags. This allows the backend Format plugin (e.g., ELF, PE) to assign the correct memory protections without hardcoding assumptions about section names.
+
+```asm
+%section <NAME> [FLAGS]
+```
+
+Where flags can be combinations of `R` (Read), `W` (Write), and `X` (Execute), or `-` to denote absence of the permission.
+
+```asm
+%section TEXT [R-X]    ; Executable code
+%section DATA [RW-]    ; Initialized read/write data
+%section RODATA [R--]  ; Read-only data
+%section BSS [RW-]     ; Uninitialized memory
+```
+
