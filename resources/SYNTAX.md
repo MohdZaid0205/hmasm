@@ -55,3 +55,20 @@ Where flags can be combinations of `R` (Read), `W` (Write), and `X` (Execute), o
 %section BSS [RW-]     ; Uninitialized memory
 ```
 
+## 4. Labels, Visibility, and Entry Points
+
+Labels define specific memory addresses. Global and external visibility directives are used to link multiple files and specify execution entry points.
+
+```asm
+%extern printf       ; Symbol is imported from an external object
+%global main         ; Symbol is exported to the linker
+
+%entry _start        ; Explicitly defines the program entry point
+
+_start:
+    call main
+    hlt
+
+.local_loop:         ; Prefix with '.' for local scope labels
+    inc a0
+```
