@@ -144,3 +144,27 @@ If a fallback is completely impossible for an architecture, the `%error` directi
     ; Implementation
 %optimization .
 ```
+
+## 9. File Inclusion
+
+The `%include` directive allows injecting the contents of another assembly file directly into the current file at compile-time.
+
+```asm
+%include "math_utils.asm"
+%include "constants.asm"
+```
+
+## 10. Macros
+
+Macros provide a way to define reusable code blocks. They accept parameters which are prefixed with `%` when used inside the macro body.
+
+```asm
+%macro PUSH_REGS reg1, reg2
+    push %reg1
+    push %reg2
+%endmacro
+
+; Usage:
+_start:
+    PUSH_REGS a0, a1
+```
