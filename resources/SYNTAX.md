@@ -4,15 +4,24 @@ This document specifies intended style for this assembler and how different comp
 
 > Currently under development (SUBJECTED TO CHANGES)
 
-## Registers and Naming registers
+## 1. Comments
+Comments are supported and are ignored by the assembler. A comment begins with a semicolon `;` (or `;;`) and extends to the end of the line.
 
-Every architecuture defines its own names for registers and its own types of registers with different purpose. Each register also has an associated size with it. To deal with this following syntax for naming register has been defined.
+```asm
+; This is a single-line comment
+;; This is also a comment, typically used for important notes
+add a0, a1, a2  ; This is an inline comment
+```
+
+## 2. Registers and Aliasing
+
+Every architecture defines its own names for registers and its own types of registers with different purposes. Each register also has an associated size with it. To deal with this, the following syntax for aliasing registers is defined:
 
 ```asm
 %register <name> := <reg> @<arch>
 ```
 
-Read as: register `name` defined as `reg` at `architecure`
+Read as: register `name` defined as `reg` for `architecture`.
 
 ---
 
@@ -23,9 +32,9 @@ Read as: register `name` defined as `reg` at `architecure`
 %register value := a0 @RISC-V
 %register value := sx @x86-64
 
-load value, 0x10
+move value, 0x10
 add  temp, value, 0x10
 ```
 
-> NOTE: this definition of register names are only present upto intermideate representation of assembly. After that, depending upon target architecture, all such definitions are omitted and therefore useless.
+> NOTE: This definition of register names is only present up to the intermediate representation of the assembly. After that, depending upon the target architecture, all such definitions are resolved by the assembler and removed.
 
