@@ -103,3 +103,44 @@ To allocate data in `.data` or `.rodata` sections, use the `%data` directive. Fo
 %section BSS [RW-]
     %reserve @B buffer[1024]    ; Reserves 1024 bytes
 ```
+
+## 7. Alignment
+
+Different ISAs have strict memory alignment rules. The `%align` directive ensures the next instruction or data block is aligned to a specific byte boundary.
+
+```asm
+%align 4
+%data @D aligned_value = 0x12345678
+```
+
+## 8. Optimization Blocks (Multi-Architecture Fallbacks)
+
+To fully leverage the 3-layered assembler, you can provide architecture-specific implementations for a block of code. 
+
+The assembler expects a `@default` block using universal IR. If the target architecture matches an provided `@<arch>` block, the assembler will parse that specific block instead. If native (unknown) instructions are encountered in an architecture block, the ISA backend will attempt to compile them via a fallback framework (e.g., Keystone).
+
+```asm
+%optimization @default
+    ; Generic IR implementation
+    add a0, a1, a2
+
+%optimization @x86-64
+    ; x86-64 specific implementation
+    lea a0, [a1 + a2]
+
+%optimization @RISC-V
+    ; RISC-V specific implementation
+    add a0, a1, a2
+
+%optimization .
+```
+
+If a fallback is completely impossible for an architecture, the `%error` directive can be used to explicitly halt compilation.
+
+```asm
+%optimization @default
+    %error "Operation not supported on generic IR!"
+%optimization @x86-64
+    ; Implementation
+%optimization .
+```
