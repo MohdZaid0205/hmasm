@@ -72,3 +72,34 @@ _start:
 .local_loop:         ; Prefix with '.' for local scope labels
     inc a0
 ```
+
+## 5. Type-Aware Constants
+
+Constants are defined using the `%const` directive followed by a type identifier. These types directly map to the AST `DECLARATION_TYPE` system, enforcing compile-time type safety.
+
+* `@B`: Byte
+* `@W`: Word
+* `@D`: Double
+* `@Q`: Quadword
+* `@T`: Tenword
+* `@Y`: Y-word
+* `@Z`: Z-word
+
+```asm
+%const @W MAX_BUFFER_SIZE = 0xFFFF
+%const @D TARGET_ARCH_ID  = 0x01
+```
+
+## 6. Type-Aware Data Definitions and Reservations
+
+To allocate data in `.data` or `.rodata` sections, use the `%data` directive. For uninitialized memory in the `.bss` section, use `%reserve`.
+
+```asm
+%section DATA [RW-]
+    %data @B msg = "Hello World", 0
+    %data @W fibonacci = [1, 1, 2, 3, 5]
+    %data @D magic = 0xDEADBEEF
+
+%section BSS [RW-]
+    %reserve @B buffer[1024]    ; Reserves 1024 bytes
+```
