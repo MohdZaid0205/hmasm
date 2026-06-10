@@ -119,12 +119,43 @@ typedef struct INSTRUCTION_COMPONENT {
 // INSTRUCTION is representation of a fully parsed assembly instruction, holding 
 // the mnemonic name alongside up to three operands (destination and sources).
 typedef struct INSTRUCTION {
-    char* name;
     enum INSTRUCTION_TYPE type;
     struct INSTRUCTION_COMPONENT rd;
     struct INSTRUCTION_COMPONENT rs1;
     struct INSTRUCTION_COMPONENT rs2;
 } Instruction;
 
+
+// DECLARATION_COMPONENT_TYPE
+// type of declaration component used by a declaration, a component is part of 
+// declarations holding crucial data regarding operation and values of a definition.
+//
+// -----------------------------------------------------------------------------+
+// DECLARATION_COMPONENT_CONST_T            // constant definition              |
+// DECLARATION_COMPONENT_DATA_T             // initialized data array           |
+// DECLARATION_COMPONENT_RESERVE_T          // uninitialized memory reservation |
+// -----------------------------------------------------------------------------+
+typedef enum DECLARATION_COMPONENT_TYPE {
+    DECLARATION_COMPONENT_CONST_T,
+    DECLARATION_COMPONENT_DATA_T,
+    DECLARATION_COMPONENT_RESERVE_T,
+} DeclarationComponentType, DeclCompType;
+
+
+// DECLARATION_COMPONENT_CONST aka DeclarationComponentConst & DeclCompConst
+// DECLARATION_COMPONENT_CONST is representation of a constant declaration within
+// assembly, holding a single evaluated immediate value for compile-time usage.
+typedef struct DECLARATION_COMPONENT_CONST {
+    struct INSTRUCTION_COMPONENT_IMMIDIATE value; // single evaluated value
+} DeclarationComponentConst, DeclCompConst;
+
+
+// DECLARATION_COMPONENT_DATA_VALUES aka DeclarationComponentDataValues & DeclCompDataVal
+// DECLARATION_COMPONENT_DATA_VALUES represents an array of initialized values 
+// that will be written sequentially into the target binary (e.g., .data section).
+typedef struct DECLARATION_COMPONENT_DATA_VALUES {
+    struct INSTRUCTION_COMPONENT_IMMIDIATE* values; // array of values
+    int count;                                      // number of values in array
+} DeclarationComponentDataValues, DeclCompDataVal;
 
 #endif
