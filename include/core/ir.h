@@ -158,4 +158,53 @@ typedef struct DECLARATION_COMPONENT_DATA_VALUES {
     int count;                                      // number of values in array
 } DeclarationComponentDataValues, DeclCompDataVal;
 
+
+// DECLARATION_COMPONENT_RESERVE aka DeclarationComponentReserve & DeclCompRes
+// DECLARATION_COMPONENT_RESERVE represents a request to allocate uninitialized
+// memory space inside the binary (e.g., .bss section) based on the target type.
+typedef struct DECLARATION_COMPONENT_RESERVE {
+    int size;                           // number of elements to reserve
+} DeclarationComponentReserve, DeclCompRes;
+
+
+// DECLARATION_DATA_TYPE
+// defines the primitive data sizes available for allocation.
+typedef enum DECLARATION_DATA_TYPE {
+    DECLARATION_B_T,    // declaration for byte
+    DECLARATION_W_T,    // declaration for word
+    DECLARATION_D_T,    // declaration for double
+    DECLARATION_Q_T,    // declaration for quadword
+    DECLARATION_T_T,    // declaration for tenword
+    DECLARATION_Y_T,    // declaration for Y-word
+    DECLARATION_Z_T,    // declaration for Z-word
+} DeclarationDataType, DeclDataType;
+
+
+// DECLARATION aka Declaration & Decl
+// DECLARATION holds type of declaration component and associated data.
+// 
+// [ USAGE ] -------------------------------------------------------------------+
+// DECLARATION decl = __allocate;                                               |
+// switch (decl.type){                                                          |
+//      case DECLARATION_COMPONENT_CONST_T:   return decl.as.cnst;              |
+//      case DECLARATION_COMPONENT_DATA_T:    return decl.as.vals;              |
+//      case DECLARATION_COMPONENT_RESERVE_T: return decl.as.resv;              |
+// }                                                                            |
+// -----------------------------------------------------------------------------+
+//
+// [ NOTE ] --------------------------------------------------------------------+
+// doing decl.as.<other> can fail with segmentation fault for decl.as.<type>    |
+// -----------------------------------------------------------------------------+
+typedef struct DECLARATION {
+    enum DECLARATION_COMPONENT_TYPE type; // holds the type of current component
+    enum DECLARATION_DATA_TYPE dt;        // target primitive type (e.g., @B, @W)
+    char* name;                           // name assigned to this data/constant
+    
+    union {
+        struct DECLARATION_COMPONENT_CONST       cnst; // read as constant
+        struct DECLARATION_COMPONENT_DATA_VALUES vals; // read as data array
+        struct DECLARATION_COMPONENT_RESERVE     resv; // read as reservation
+    } as;
+} Declaration, Decl;
+
 #endif
