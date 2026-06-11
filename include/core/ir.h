@@ -207,4 +207,41 @@ typedef struct DECLARATION {
     } as;
 } Declaration, Decl;
 
+
+// DIRECTIVE_TYPE
+// type of directive used to instruct the assembler, representing meta-commands
+// rather than executable CPU instructions.
+//
+// --------------+--------------------------------------------------------------+
+// SECTION_T     | defines target memory segment (e.g., TEXT, DATA)             |
+// ALIGN_T       | enforces byte boundary alignment for subsequent data/code    |
+// GLOBAL_T      | exports a symbol for external linkage                        |
+// EXTERN_T      | imports a symbol from an external source                     |
+// ENTRY_T       | defines execution entry point of binary                      |
+// INCLUDE_T     | file inclusion directive                                     |
+// ERROR_T       | explicitly halts compilation with message                    |
+// REGISTER..._T | assigns an alias to a hardware register                      |
+// --------------+--------------------------------------------------------------+
+typedef enum DIRECTIVE_TYPE {
+    DIRECTIVE_SECTION_T,
+    DIRECTIVE_ALIGN_T,
+    DIRECTIVE_GLOBAL_T,
+    DIRECTIVE_EXTERN_T,
+    DIRECTIVE_ENTRY_T,
+    DIRECTIVE_INCLUDE_T,
+    DIRECTIVE_ERROR_T,
+    DIRECTIVE_REGISTER_ALIAS_T
+} DirectiveType, DirType;
+
+
+// DIRECTIVE aka Directive & Dir
+// DIRECTIVE is representation of an assembler directive, utilizing generic
+// target and modifier strings to flexibly accommodate various directive schemas.
+typedef struct DIRECTIVE {
+    enum DIRECTIVE_TYPE type;           // type of directive we are handling
+    char* target;                       // primary argument (e.g., "TEXT", "printf")
+    char* modifier;                     // secondary argument (e.g., "[RWX]")
+    int value;                          // numeric argument if required (e.g., align)
+} Directive, Dir;
+
 #endif
