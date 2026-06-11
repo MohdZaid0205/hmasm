@@ -244,4 +244,56 @@ typedef struct DIRECTIVE {
     int value;                          // numeric argument if required (e.g., align)
 } Directive, Dir;
 
+
+// BLOCK_TYPE
+// defines the context type of a grouped block of statements.
+//
+// -----------------------------------------------------------------------------+
+// BLOCK_MACRO_T        // block defining a reusable macro                      |
+// BLOCK_OPTIMIZATION_T // block defining architecture specific optimizations   |
+// -----------------------------------------------------------------------------+
+typedef enum BLOCK_TYPE {
+    BLOCK_MACRO_T,
+    BLOCK_OPTIMIZATION_T,
+} BlockType, BlkType;
+
+
+// BLOCK_COMPONENT_MACRO aka BlockComponentMacro & BlkCompMac
+// BLOCK_COMPONENT_MACRO represents metadata for a macro block definition, holding
+// the name and list of parameters it accepts during expansion.
+typedef struct BLOCK_COMPONENT_MACRO {
+    char* name;                         // name of the macro
+    char** pram;                        // array of parameter strings
+    int npram;                          // number of parameters
+} BlockComponentMacro, BlkCompMac;
+
+
+// BLOCK_COMPONENT_OPTIMIZATION aka BlockComponentOptimization & BlkCompOpt
+// BLOCK_COMPONENT_OPTIMIZATION represents metadata for an optimization block,
+// holding the target architecture for which the contained code is intended.
+typedef struct BLOCK_COMPONENT_OPTIMIZATION {
+    char* arch;                         // target architecture (e.g., "RISC-V")
+} BlockComponentOptimization, BlkCompOpt;
+
+
+// BLOCK aka Block & Blk
+// BLOCK holds type of block component, its metadata, and the raw unparsed body data.
+// 
+// [ USAGE ] -------------------------------------------------------------------+
+// BLOCK blk = __allocate;                                                      |
+// switch (blk.type){                                                           |
+//      case BLOCK_MACRO_T:        return blk.as.mac;                           |
+//      case BLOCK_OPTIMIZATION_T: return blk.as.opt;                           |
+// }                                                                            |
+// -----------------------------------------------------------------------------+
+typedef struct BLOCK {
+    enum BLOCK_TYPE type;               // holds the type of current block
+    char* data;                         // raw unparsed string of block contents
+    
+    union {
+        struct BLOCK_COMPONENT_MACRO        mac; // read as macro metadata
+        struct BLOCK_COMPONENT_OPTIMIZATION opt; // read as optimization metadata
+    } as;
+} Block, Blk;
+
 #endif
