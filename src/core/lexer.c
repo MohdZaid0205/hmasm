@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "exceptions.h"
 #include "strdump.h"
+#include <ctype.h>
 
 // WARNINGS and EXCEPTIONS along with DEBUG statements as per requirement
 
@@ -41,7 +42,9 @@ bool __check_against_pun(char c) {
         || CHECK('.')
         || CHECK('%')
         || CHECK('=')
-        || CHECK('@');
+        || CHECK('@')
+        || CHECK('[')
+        || CHECK(']');
 }
 
 bool __check_against_opr(char c) {
@@ -53,9 +56,9 @@ bool __check_against_opr(char c) {
 
 bool __check_against_lit(char c) {
     return CHECK('"')
-        || CHECK('0')
         || CHECK(';')
-        || CHECK('#');
+        || CHECK('#')
+        || isdigit(c);
 }
 
 bool __check_against_wrd(char c) {
@@ -116,7 +119,28 @@ static int __cno = 0;
 
 // LEXER implementation
 
-bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
+bool lexer(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode) {
+    
+    if (raw_mode) {
+        char c = fgetc(source);
+        if (c == EOF) return false;
+        
+        long int s = ftell(source) - 1;
+        fseek(source, s, SEEK_SET);
+        
+        result->type = LEXEME_LIT;
+        result->as.lit.type = LITERAL_RAW;
+        result->as.lit.data = __collect_upto(source, '\n', true);
+        result->as.lit.line_no = __lno;
+        result->as.lit.char_no = __cno;
+        result->as.lit.size_of = strlen(result->as.lit.data);
+        
+        __lno++;
+        __cno = 0;
+        LEXER_DEBUG_LITERAL(result->as.lit);
+        return true;
+    }
+
     char p = EOF;
     char c = EOF;
 
@@ -150,18 +174,26 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
         else if (__check_against_lit(c)
                 &&(PREVS(' ')
                 || PREVS('\n')
-                || PREVS(EOF))
+                || PREVS(EOF)
+                || __check_against_pun(p)
+                || __check_against_opr(p))
             ){
-            char e = CHECK('#') || CHECK(';') ? '\n' : CHECK('0') ? ' ': c;
-            bool b = CHECK('#') || CHECK(';') || CHECK('0') ? false : true;
-            switch (c) {
-                case '"': result->as.lit.type = LITERAL_STRING ; break;
-                case '0': result->as.lit.type = LITERAL_NUMERIC; break;
-                case '#': result->as.lit.type = LITERAL_COMMENT; break;
-                default : result->as.lit.type = LITERAL_NONE   ; break;
-            };
+            
+            if (c == '"') {
+                result->as.lit.type = LITERAL_STRING;
+                result->as.lit.data = __collect_upto(source, '"', true);
+            } else if (c == '#' || c == ';') {
+                result->as.lit.type = LITERAL_COMMENT;
+                result->as.lit.data = __collect_upto(source, '\n', false);
+            } else if (isdigit(c)) {
+                result->as.lit.type = LITERAL_NUMERIC;
+                result->as.lit.data = __collect_till(source, __check_against_wrd);
+            } else {
+                result->as.lit.type = LITERAL_NONE;
+                result->as.lit.data = __collect_till(source, __check_against_wrd);
+            }
+
             result->type = LEXEME_LIT;
-            result->as.lit.data = __collect_upto(source, e, b);
             result->as.lit.line_no = __lno;
             result->as.lit.char_no = __cno;
             result->as.lit.size_of = strlen(result->as.lit.data);
@@ -186,4 +218,3 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result) {
 
     return false;
 }
-

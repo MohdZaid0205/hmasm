@@ -102,6 +102,7 @@ typedef enum LEXEME_LITERAL_TYPE{
     LITERAL_COMMENT,                    // ;; comments notion
     LITERAL_NUMERIC,                    // 0xblahblah or maybe any number 123
     LITERAL_STRING,                     // "this is a string, HELLO WORLD!"
+    LITERAL_RAW,                        // raw unparsed block string
     LITERAL_NONE,                       // dont ask me why im writing this :-(
     // LITERAL_NONE is suppoesed to be used for both labels and keywords intially
 } LexemeLitType, LexemeLiteralType;
@@ -176,6 +177,6 @@ typedef struct LEXEME_TOKEN{
 // FUNCTIONS_FOR_LEXICAL_ANALYSIS
 // following are declarations of all functions for lexical analysis of source
 // (temporary)
-bool lexer(FILE* source, struct LEXEME_TOKEN* result);
+bool lexer(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode);
 
 #endif
