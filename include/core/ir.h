@@ -1,5 +1,6 @@
 #ifndef ASSEMBELR_IR_H
 #define ASSEMBELR_IR_H
+#include <stdio.h>
 
 // INSTRUCTION_TYPE aka InstructionType aka InstType
 // defines the type of instruction we are dealing with, it contains enums for
@@ -345,5 +346,16 @@ typedef struct STATEMENT {
         char*              lable;        // read as label address
     } as;
 } Statement, Stmt;
+
+// Debug dump functions for pretty printing AST components
+void ir_dump_statement(struct STATEMENT* stmt);
+void ir_dump_block(struct BLOCK* blk);
+void ir_dump_directive(struct DIRECTIVE* dir);
+void ir_dump_declaration(struct DECLARATION* decl);
+void ir_dump_instruction(struct INSTRUCTION* inst);
+
+struct AST;
+void ir_dump_ast(struct AST* ast);
+void ir_dump_lexer(FILE* source);
 
 #endif
