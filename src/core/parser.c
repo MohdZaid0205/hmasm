@@ -57,3 +57,21 @@ bool get_next_token(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode) {
     }
     return lexer(source, result, raw_mode);
 }
+
+bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
+    stmt->type = STATEMENT_INSTRUCTION_T;
+    
+    // Read operands until the next token is on a new line
+    struct LEXEME_TOKEN next;
+    while (peek_token(source, &next)) {
+        // If the next token is on a different line, the instruction is over!
+        if (next.type == LEXEME_PUN && next.as.pun.line_no > kw->as.wrd.line_no) break;
+        if (next.type == LEXEME_WRD && next.as.wrd.line_no > kw->as.wrd.line_no) break;
+        if (next.type == LEXEME_LIT && next.as.lit.line_no > kw->as.wrd.line_no) break;
+        if (next.type == LEXEME_OPR && next.as.opr.line_no > kw->as.wrd.line_no) break;
+        
+        get_next_token(source, &next, false);
+    }
+    
+    return true;
+}
