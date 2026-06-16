@@ -75,3 +75,15 @@ bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* 
     
     return true;
 }
+
+// Peeks at the next token without consuming it
+bool peek_token(FILE* source, struct LEXEME_TOKEN* result) {
+    if (!__has_lookahead) {
+        __has_lookahead = lexer(source, &__lookahead, false);
+    }
+    if (__has_lookahead) {
+        *result = __lookahead;
+        return true;
+    }
+    return false;
+}
