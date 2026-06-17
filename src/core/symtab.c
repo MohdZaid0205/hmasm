@@ -39,3 +39,26 @@ void symbol_table_destroy(struct SYMBOL_TABLE* table) {
     free(table->entries);
     free(table);
 }
+
+bool symbol_table_insert(struct SYMBOL_TABLE* table, struct SYMBOL* symbol) {
+    if (!table || !symbol || !symbol->name) return false;
+    
+    // Check if it already exists
+    if (symbol_table_lookup(table, symbol->name) != NULL) {
+        return false; // Duplicate symbol
+    }
+    
+    unsigned int index = __hash_fnv1a(symbol->name) % table->capacity;
+    
+    // Copy the symbol into the table
+    struct SYMBOL* new_sym = malloc(sizeof(struct SYMBOL));
+    *new_sym = *symbol;
+    new_sym->name = strdup(symbol->name);
+    
+    // Insert at head of the chain
+    new_sym->next = table->entries[index];
+    table->entries[index] = new_sym;
+    table->count++;
+    
+    return true;
+}
