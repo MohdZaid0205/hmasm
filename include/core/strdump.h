@@ -72,16 +72,75 @@
 #define ARGVS_RESP_FTYPE "flag -[-f]ormat IGNORED"
 #define ARGVS_RESP_ITYPE "flag -[-i]sa IGNORED"
 
-// lexer.h LEXER_DEBUG_PUNCTUATION(punctuation)
-#define LEXER_DEBUG_PUN "%d:%d PUNCTUATION(%(\"%c\"%))" NLINE
+// lexer.c LEXER_DEBUG
+#define LEXER_DEBUG_DES "assembler successfully generated Lexer Tokens" NLINE
+#define LEXER_DEBUG_END "lexer dump completed" NLINE
 
-// lexer.h LEXER_DEBUG_OPERATION(operation)
-#define LEXER_DEBUG_OPR "%d:%d OPERATION(%(\"%c\"%))" NLINE
+#define LEXER_DEBUG_LNO "  [L: %02d] "
+#define LEXER_DEBUG_PUN "PUNCTUATION(%(\"%c\"%)) "
+#define LEXER_DEBUG_OPR "OPERATION(%(\"%c\"%)) "
+#define LEXER_DEBUG_LIT "LITERAL(%(\"%s\"%)) "
+#define LEXER_DEBUG_WRD "WORD(%(\"%s\"%)) "
 
-// lexer.h LEXER_DEBUG_LITERAL(literal)
-#define LEXER_DEBUG_LIT "%d:%d-%d LITERAL(%(\"%s\"%))" NLINE
+// parser.c UNEXPECTED_TOKEN_EXCEPTION
+#define PARSER_UTE_DES "assembler encountered an unexpected token during parsing: %(%s%)" NLINE
+#define PARSER_UTE_LN1 "while trying to resolve statement found %('%s'%) expected %('%s'%)" NLINE
+#define PARSER_UTE_LN2 "why? :raised:exception:=> %(UNEXPECTED_TOKEN_EXCEPTION%)" NLINE
+#define PARSER_UTE_LN3 "%([!]%) at line %d, character %d" NLINE
+#define PARSER_UTE_END "statement parsing %(FAILED%) near %(%s%)" NLINE NLINE
 
-// lexer.h LEXER_DEBUG_WORD(word)
-#define LEXER_DEBUG_WRD "%d:%d-%d WORD(%(\"%s\"%))" NLINE
+// parser.c INVALID_DIRECTIVE_EXCEPTION
+#define PARSER_IDE_DES "assembler encountered an invalid directive: %(%s%)" NLINE
+#define PARSER_IDE_LN1 "while trying to resolve directive found %('%%%s'%) which is not recognized" NLINE
+#define PARSER_IDE_LN2 "why? :raised:exception:=> %(INVALID_DIRECTIVE_EXCEPTION%)" NLINE
+#define PARSER_IDE_LN3 "%([!]%) at line %d, character %d" NLINE
+#define PARSER_IDE_END "directive parsing %(FAILED%) near %(%s%)" NLINE NLINE
+
+// parser.c INVALID_DECLARATION_EXCEPTION
+#define PARSER_DCL_DES "assembler encountered an invalid declaration: %(%s%)" NLINE
+#define PARSER_DCL_LN1 "while parsing declaration found invalid structure" NLINE
+#define PARSER_DCL_LN2 "why? :raised:exception:=> %(INVALID_DECLARATION_EXCEPTION%)" NLINE
+#define PARSER_DCL_LN3 "%([!]%) at line %d, character %d" NLINE
+#define PARSER_DCL_END "declaration parsing %(FAILED%) near %(%s%)" NLINE NLINE
+
+// parser.c INVALID_INSTRUCTION_EXCEPTION
+#define PARSER_IIE_DES "assembler encountered an invalid instruction mnemonic: %(%s%)" NLINE
+#define PARSER_IIE_LN1 "while parsing instruction found unrecognized mnemonic %('%s'%)" NLINE
+#define PARSER_IIE_LN2 "why? :raised:exception:=> %(INVALID_INSTRUCTION_EXCEPTION%)" NLINE
+#define PARSER_IIE_LN3 "%([!]%) at line %d, character %d" NLINE
+#define PARSER_IIE_END "instruction parsing %(FAILED%) near %(%s%)" NLINE NLINE
+
+
+// ir.c IR_DEBUG_AST
+#define IR_DEBUG_AST_DES "assembler successfully generated Abstract Syntax Tree (statements: %(%d%))" NLINE
+#define IR_DEBUG_AST_END "ast dump completed" NLINE
+
+#define IR_DEBUG_BLK_OPT "  [BLOCK: OPTIMIZATION] arch: %(%s%)" NLINE
+#define IR_DEBUG_BLK_MAC "  [BLOCK: MACRO] name: %(%s%)" NLINE
+#define IR_DEBUG_BLK_RAW "    raw data:" NLINE
+#define IR_DEBUG_BLK_RLN "      | %s" NLINE
+
+#define IR_DEBUG_DIR_SEC "  [DIRECTIVE: SECTION]" NLINE
+#define IR_DEBUG_DIR_ALG "  [DIRECTIVE: ALIGN]" NLINE
+#define IR_DEBUG_DIR_GLB "  [DIRECTIVE: GLOBAL]" NLINE
+#define IR_DEBUG_DIR_EXT "  [DIRECTIVE: EXTERN]" NLINE
+#define IR_DEBUG_DIR_ENT "  [DIRECTIVE: ENTRY]" NLINE
+#define IR_DEBUG_DIR_INC "  [DIRECTIVE: INCLUDE]" NLINE
+#define IR_DEBUG_DIR_ERR "  [DIRECTIVE: ERROR]" NLINE
+#define IR_DEBUG_DIR_UNK "  [DIRECTIVE: UNKNOWN]" NLINE
+#define IR_DEBUG_DIR_TRG "    target  : %(%s%)" NLINE
+#define IR_DEBUG_DIR_MOD "    modifier: %(%s%)" NLINE
+
+#define IR_DEBUG_DCL     "  [DECLARATION]" NLINE
+#define IR_DEBUG_INS     "  [INSTRUCTION]" NLINE
+#define IR_DEBUG_LBL     "  [LABEL: %(%s%)]" NLINE
+
+// symtab.c IR_DEBUG_SYM
+#define IR_DEBUG_SYM_DES "assembler successfully generated Symbol Table (symbols: %(%d%))" NLINE
+#define IR_DEBUG_SYM_END "symbol table dump completed" NLINE
+
+#define IR_DEBUG_SYM_LBL "  [LABEL] %(%s%) @ 0x%08lX" NLINE
+#define IR_DEBUG_SYM_CON "  [CONST] %(%s%) (@%c) = 0x%lX" NLINE
+#define IR_DEBUG_SYM_DAT "  [DATA ] %(%s%) (@%c) @ 0x%08lX (size: %lu bytes)" NLINE
 
 #endif
