@@ -147,3 +147,21 @@ bool parse(FILE* source, struct AST* result) {
     }
     return true;
 }
+
+// Helpers
+#define CHECK(str) strcmp(word, str) == 0
+
+bool is_directive(const char* word) {
+    return CHECK("section")
+        || CHECK("align")
+        || CHECK("global")
+        || CHECK("extern")
+        || CHECK("entry")
+        || CHECK("include")
+        || CHECK("error");
+}
+
+bool is_block(const char* word) {
+    return CHECK("optimization")
+        || CHECK("macro");
+}
