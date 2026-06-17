@@ -41,3 +41,31 @@ void ir_dump_directive(struct DIRECTIVE* dir) {
         DEBUG_LN("", IR_DEBUG_DIR_MOD, dir->modifier);
     }
 }
+
+void ir_dump_declaration(struct DECLARATION* decl) {
+    DEBUG_LN("", IR_DEBUG_DCL);
+}
+
+void ir_dump_instruction(struct INSTRUCTION* inst) {
+    DEBUG_LN("", IR_DEBUG_INS);
+}
+
+void ir_dump_statement(struct STATEMENT* stmt) {
+    switch (stmt->type) {
+        case STATEMENT_LABEL_T:
+            DEBUG_LN("", IR_DEBUG_LBL, stmt->as.lable);
+            break;
+        case STATEMENT_INSTRUCTION_T:
+            ir_dump_instruction(&stmt->as.inst);
+            break;
+        case STATEMENT_DIRECTIVE_T:
+            ir_dump_directive(&stmt->as.dir);
+            break;
+        case STATEMENT_DECLARATION_T:
+            ir_dump_declaration(&stmt->as.decl);
+            break;
+        case STATEMENT_BLOCK_T:
+            ir_dump_block(&stmt->as.blk);
+            break;
+    }
+}
