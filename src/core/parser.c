@@ -165,3 +165,43 @@ bool is_block(const char* word) {
     return CHECK("optimization")
         || CHECK("macro");
 }
+
+bool is_data(const char* word) {
+    return CHECK("data")
+        || CHECK("reserve");
+}
+
+bool parse_directive(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
+    stmt->type = STATEMENT_DIRECTIVE_T;
+    const char* word = kw->as.wrd.data;
+    
+    if      (CHECK("section")) stmt->as.dir.type = DIRECTIVE_SECTION_T;
+    else if (CHECK("align"))   stmt->as.dir.type = DIRECTIVE_ALIGN_T;
+    else if (CHECK("global"))  stmt->as.dir.type = DIRECTIVE_GLOBAL_T;
+    else if (CHECK("extern"))  stmt->as.dir.type = DIRECTIVE_EXTERN_T;
+    else if (CHECK("entry"))   stmt->as.dir.type = DIRECTIVE_ENTRY_T;
+    else if (CHECK("include")) stmt->as.dir.type = DIRECTIVE_INCLUDE_T;
+    else if (CHECK("error"))   stmt->as.dir.type = DIRECTIVE_ERROR_T;
+
+    struct LEXEME_TOKEN target;
+    if (!get_next_token(source, &target, false)) {
+        UNEXPECTED_TOKEN_EXCEPTION("Target Argument", "EOF", kw->as.wrd.line_no, kw->as.wrd.char_no);
+        return false;
+    }
+    
+    if (target.type == LEXEME_WRD || target.type == LEXEME_LIT) {
+        stmt->as.dir.target = target.type == LEXEME_WRD ? (char*)target.as.wrd.data : (char*)target.as.lit.data;
+    } else if (target.type == LEXEME_PUN && target.as.pun.data == '.') {
+        struct LEXEME_TOKEN target_word;
+        if (!get_next_token(source, &target_word, false)) return false;
+        char buf[256];
+        sprintf(buf, ".%s", target_word.as.wrd.data);
+        stmt->as.dir.target = strdup(buf);
+    } else {
+        stmt->as.dir.target = NULL;
+    }
+    
+    stmt->as.dir.modifier = NULL;
+
+    return true;
+}
