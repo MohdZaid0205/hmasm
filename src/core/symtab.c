@@ -78,3 +78,26 @@ struct SYMBOL* symbol_table_lookup(struct SYMBOL_TABLE* table, const char* name)
     
     return NULL;
 }
+
+void ir_dump_symbol_table(struct SYMBOL_TABLE* table) {
+    DEBUG(IR_DEBUG_SYM_DES, {
+        for (unsigned int i = 0; i < table->capacity; i++) {
+            struct SYMBOL* current = table->entries[i];
+            while (current) {
+                switch (current->type) {
+                    case SYMBOL_LABLE_T:
+                        DEBUG_LN("", IR_DEBUG_SYM_LBL, current->name, current->as.lable.address);
+                        break;
+                    case SYMBOL_CONSTANT_T:
+                        DEBUG_LN("", IR_DEBUG_SYM_CON, current->name, current->as.constant.modifier, current->as.constant.value);
+                        break;
+                    case SYMBOL_DATA_T:
+                        DEBUG_LN("", IR_DEBUG_SYM_DAT, current->name, current->as.data.modifier, current->as.data.address, current->as.data.size);
+                        break;
+                }
+                current = current->next;
+            }
+        }
+        DEBUG_EN(IR_DEBUG_SYM_END);
+    }, table->count);
+}
