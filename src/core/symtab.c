@@ -62,3 +62,19 @@ bool symbol_table_insert(struct SYMBOL_TABLE* table, struct SYMBOL* symbol) {
     
     return true;
 }
+
+struct SYMBOL* symbol_table_lookup(struct SYMBOL_TABLE* table, const char* name) {
+    if (!table || !name) return NULL;
+    
+    unsigned int index = __hash_fnv1a(name) % table->capacity;
+    struct SYMBOL* current = table->entries[index];
+    
+    while (current) {
+        if (strcmp(current->name, name) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    
+    return NULL;
+}
