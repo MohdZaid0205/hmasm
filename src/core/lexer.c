@@ -6,22 +6,15 @@
 // WARNINGS and EXCEPTIONS along with DEBUG statements as per requirement
 
 #ifdef LEXER_DEBUG
-    #define LEXER_DEBUG_PUNCTUATION(p)                                          \
-        DEBUG(LEXER_DEBUG_PUN, {}, p.line_no, p.char_no, p.data)
-
-    #define LEXER_DEBUG_OPERATION(o)                                            \
-        DEBUG(LEXER_DEBUG_OPR, {}, o.line_no, o.char_no, o.data)
-
-    #define LEXER_DEBUG_LITERAL(l)                                              \
-        DEBUG(LEXER_DEBUG_LIT, {}, l.line_no, l.char_no, l.size_of, l.data)
-
-    #define LEXER_DEBUG_WORD(w)                                                 \
-        DEBUG(LEXER_DEBUG_WRD, {}, w.line_no, w.char_no, w.size_of, w.data)
+    #define LEXER_DEBUG_PUNCTUATION(p)
+    #define LEXER_DEBUG_OPERATION(o)
+    #define LEXER_DEBUG_LITERAL(l)
+    #define LEXER_DEBUG_WORD(w)
 #else
-    #define LEXER_DEBUG_PUNCTUATION(x)  // LEXER_DEBUG_PUNCTUATION(x)
-    #define LEXER_DEBUG_OPERATION(x)    // LEXER_DEBUG_OPERATION(x)
-    #define LEXER_DEBUG_LITERAL(x)      // LEXER_DEBUG_LITERAL(x)
-    #define LEXER_DEBUG_WORD(x)         // LEXER_DEBUG_WORD(x)
+    #define LEXER_DEBUG_PUNCTUATION(x)
+    #define LEXER_DEBUG_OPERATION(x)
+    #define LEXER_DEBUG_LITERAL(x)
+    #define LEXER_DEBUG_WORD(x)
 #endif
 
 // UNNESSASARY but USEFUL macros
@@ -125,15 +118,20 @@ bool lexer(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode) {
         char c = fgetc(source);
         if (c == EOF) return false;
         
-        long int s = ftell(source) - 1;
-        fseek(source, s, SEEK_SET);
-        
         result->type = LEXEME_LIT;
         result->as.lit.type = LITERAL_RAW;
-        result->as.lit.data = __collect_upto(source, '\n', true);
+        
+        char* data = __collect_upto(source, '\n', true);
+        int len = strlen(data);
+        if (len > 0 && data[len-1] == '\n') {
+            data[len-1] = '\0';
+            len--;
+        }
+        
+        result->as.lit.data = data;
         result->as.lit.line_no = __lno;
         result->as.lit.char_no = __cno;
-        result->as.lit.size_of = strlen(result->as.lit.data);
+        result->as.lit.size_of = len;
         
         __lno++;
         __cno = 0;
