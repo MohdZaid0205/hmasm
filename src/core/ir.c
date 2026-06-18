@@ -69,3 +69,38 @@ void ir_dump_statement(struct STATEMENT* stmt) {
             break;
     }
 }
+
+void ir_dump_ast(struct AST* ast) {
+    DEBUG(IR_DEBUG_AST_DES, {
+        for (int i = 0; i < ast->count; i++) {
+            ir_dump_statement(&ast->statements[i]);
+        }
+        DEBUG_EN(IR_DEBUG_AST_END);
+    }, ast->count);
+}
+void ir_dump_lexer(FILE* source) {
+    DEBUG(LEXER_DEBUG_DES, {
+        struct LEXEME_TOKEN token;
+        int current_line = -1;
+        while (lexer(source, &token, false)) {
+            unsigned int lno = 0;
+            if (token.type == LEXEME_PUN) lno = token.as.pun.line_no;
+            else if (token.type == LEXEME_OPR) lno = token.as.opr.line_no;
+            else if (token.type == LEXEME_LIT) lno = token.as.lit.line_no;
+            else if (token.type == LEXEME_WRD) lno = token.as.wrd.line_no;
+            
+            if ((int)lno != current_line) {
+                if (current_line != -1) { DBG("\n"); }
+                current_line = lno;
+                { DBG(LEXER_DEBUG_LNO, current_line); }
+            }
+            
+            if (token.type == LEXEME_PUN) { DBG(LEXER_DEBUG_PUN, token.as.pun.data); }
+            else if (token.type == LEXEME_OPR) { DBG(LEXER_DEBUG_OPR, token.as.opr.data); }
+            else if (token.type == LEXEME_LIT) { DBG(LEXER_DEBUG_LIT, token.as.lit.data); }
+            else if (token.type == LEXEME_WRD) { DBG(LEXER_DEBUG_WRD, token.as.wrd.data); }
+        }
+        if (current_line != -1) { DBG("\n"); }
+        DEBUG_EN(LEXER_DEBUG_END);
+    }, "");
+}
