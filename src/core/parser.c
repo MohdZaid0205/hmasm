@@ -282,3 +282,52 @@ bool parse_data_declaration(FILE* source, struct LEXEME_TOKEN* kw, struct STATEM
     }
     return true;
 }
+
+bool parse_const_declaration(FILE* source, struct STATEMENT* stmt) {
+    stmt->type = STATEMENT_DECLARATION_T;
+    struct DECLARATION* decl = &stmt->as.decl;
+    decl->type = DECLARATION_COMPONENT_CONST_T;
+    
+    struct LEXEME_TOKEN tok;
+
+    if (!get_next_token(source, &tok, false)) return false;
+
+    if (tok.type != LEXEME_WRD) {
+        UNEXPECTED_TOKEN_EXCEPTION("DataType (e.g., B, W, D)", "Non-Word Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    
+    char modifier = tok.as.wrd.data[0];
+    switch (modifier) {
+        case 'B': decl->dt = DECLARATION_B_T; break;
+        case 'W': decl->dt = DECLARATION_W_T; break;
+        case 'D': decl->dt = DECLARATION_D_T; break;
+        case 'Q': decl->dt = DECLARATION_Q_T; break;
+        case 'T': decl->dt = DECLARATION_T_T; break;
+        case 'Y': decl->dt = DECLARATION_Y_T; break;
+        case 'Z': decl->dt = DECLARATION_Z_T; break;
+        default: 
+            UNEXPECTED_TOKEN_EXCEPTION("Valid DataType (B, W, D, Q, T, Y, Z)", tok.as.wrd.data, tok.as.wrd.line_no, tok.as.wrd.char_no);
+            return false;
+    }
+    
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+        UNEXPECTED_TOKEN_EXCEPTION("Identifier", "Non-Word Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    decl->name = strdup(tok.as.wrd.data);
+    
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '=') {
+        UNEXPECTED_TOKEN_EXCEPTION("=", "Missing '='", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    
+    if (!get_next_token(source, &tok, false) || (tok.type != LEXEME_LIT && tok.type != LEXEME_WRD)) {
+        UNEXPECTED_TOKEN_EXCEPTION("Immediate Value", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    decl->as.cnst.value.value = strdup(tok.type == LEXEME_LIT ? tok.as.lit.data : tok.as.wrd.data);
+    decl->as.cnst.value.lable = NULL;
+    
+    return true;
+}
