@@ -269,3 +269,16 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
     }
     return true;
 }
+
+bool parse_data_declaration(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
+    stmt->type = STATEMENT_DECLARATION_T;
+    
+    // consume @, type, name, =, [, ... ]
+    struct LEXEME_TOKEN tok;
+    while (get_next_token(source, &tok, false)) {
+        if (tok.type == LEXEME_PUN && tok.as.pun.data == ']') {
+            break;
+        }
+    }
+    return true;
+}
