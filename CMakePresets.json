@@ -9,7 +9,8 @@
         "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
         "cacheVariables": {
           "CMAKE_BUILD_TYPE": "Debug",
-          "LEXER_DEBUG": "ON"
+          "LEXER_DEBUG": "ON",
+          "PARSER_DEBUG": "ON"
         },
         "condition": {
           "type": "equals",
@@ -39,7 +40,8 @@
         "cacheVariables": {
           "CMAKE_BUILD_TYPE": "Debug",
           "CMAKE_C_COMPILER": "clang",
-          "LEXER_DEBUG": "ON"
+          "LEXER_DEBUG": "ON",
+          "PARSER_DEBUG": "ON"
         },
         "condition": {
           "type": "equals",
