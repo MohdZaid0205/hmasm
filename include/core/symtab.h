@@ -62,6 +62,10 @@ void symbol_table_destroy(struct SYMBOL_TABLE* table);
 bool symbol_table_insert(struct SYMBOL_TABLE* table, struct SYMBOL* symbol);
 struct SYMBOL* symbol_table_lookup(struct SYMBOL_TABLE* table, const char* name);
 
+// Traversal and Population
+struct AST;
+void ir_populate_symbol_table(struct AST* ast, struct SYMBOL_TABLE* symtab);
+
 // Debug Formatting
 void ir_dump_symbol_table(struct SYMBOL_TABLE* table);
 
