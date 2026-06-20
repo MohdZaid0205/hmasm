@@ -6,6 +6,18 @@
 #include <stdio.h>
 
 
+// Forward Declarations
+bool is_directive   (const char* word);
+bool is_block       (const char* word);
+bool is_data        (const char* word);
+bool parse_directive        (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
+bool parse_block            (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
+bool parse_data_declaration (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
+bool parse_const_declaration(FILE* source, struct STATEMENT* stmt);
+bool parse_instruction      (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
+bool peek_token             (FILE* source, struct LEXEME_TOKEN* result);
+bool get_next_token         (FILE* source, struct LEXEME_TOKEN* result, bool raw_mode);
+
 // MACROS for error reporting
 #define UNEXPECTED_TOKEN_EXCEPTION(expected, actual, lno, cno)                  \
     EXCEPTION(PARSER_UTE_DES, {                                                 \
