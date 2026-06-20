@@ -284,14 +284,90 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
 
 bool parse_data_declaration(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
     stmt->type = STATEMENT_DECLARATION_T;
+    struct DECLARATION* decl = &stmt->as.decl;
     
-    // consume @, type, name, =, [, ... ]
+    bool is_reserve = strcmp(kw->as.wrd.data, "reserve") == 0;
+    decl->type = is_reserve ? DECLARATION_COMPONENT_RESERVE_T : DECLARATION_COMPONENT_DATA_T;
+    
     struct LEXEME_TOKEN tok;
-    while (get_next_token(source, &tok, false)) {
-        if (tok.type == LEXEME_PUN && tok.as.pun.data == ']') {
-            break;
+
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '@') {
+        UNEXPECTED_TOKEN_EXCEPTION("@", "Missing '@'", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+        UNEXPECTED_TOKEN_EXCEPTION("DataType (e.g., B, W, D)", "Non-Word Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    char modifier = tok.as.wrd.data[0];
+    switch (modifier) {
+        case 'B': decl->dt = DECLARATION_B_T; break;
+        case 'W': decl->dt = DECLARATION_W_T; break;
+        case 'D': decl->dt = DECLARATION_D_T; break;
+        case 'Q': decl->dt = DECLARATION_Q_T; break;
+        case 'T': decl->dt = DECLARATION_T_T; break;
+        case 'Y': decl->dt = DECLARATION_Y_T; break;
+        case 'Z': decl->dt = DECLARATION_Z_T; break;
+        default: 
+            UNEXPECTED_TOKEN_EXCEPTION("Valid DataType (B, W, D, Q, T, Y, Z)", tok.as.wrd.data, tok.as.wrd.line_no, tok.as.wrd.char_no);
+            return false;
+    }
+
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+        UNEXPECTED_TOKEN_EXCEPTION("Identifier", "Non-Word Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    decl->name = strdup(tok.as.wrd.data);
+
+    if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '=') {
+        UNEXPECTED_TOKEN_EXCEPTION("=", "Missing '='", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+
+    if (is_reserve) {
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_LIT) {
+            UNEXPECTED_TOKEN_EXCEPTION("Reserve Size Literal", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        decl->as.resv.size = atoi(tok.as.lit.data);
+    } else {
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '[') {
+            UNEXPECTED_TOKEN_EXCEPTION("[", "Missing '['", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        
+        int capacity = 8;
+        decl->as.vals.values = malloc(sizeof(struct INSTRUCTION_COMPONENT_IMMIDIATE) * capacity);
+        decl->as.vals.count = 0;
+        
+        while (true) {
+            if (!get_next_token(source, &tok, false)) return false;
+            
+            if (tok.type == LEXEME_PUN && tok.as.pun.data == ']') {
+                break;
+            }
+            
+            if (tok.type == LEXEME_PUN && tok.as.pun.data == ',') {
+                continue; // Skip commas
+            }
+            
+            if (tok.type != LEXEME_LIT && tok.type != LEXEME_WRD) {
+                UNEXPECTED_TOKEN_EXCEPTION("Value or ']'", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+                return false;
+            }
+            
+            if (decl->as.vals.count >= capacity) {
+                capacity *= 2;
+                decl->as.vals.values = realloc(decl->as.vals.values, sizeof(struct INSTRUCTION_COMPONENT_IMMIDIATE) * capacity);
+            }
+            
+            decl->as.vals.values[decl->as.vals.count].value = strdup(tok.type == LEXEME_LIT ? tok.as.lit.data : tok.as.wrd.data);
+            decl->as.vals.values[decl->as.vals.count].lable = NULL;
+            decl->as.vals.count++;
         }
     }
+    
     return true;
 }
 
