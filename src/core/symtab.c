@@ -80,6 +80,93 @@ struct SYMBOL* symbol_table_lookup(struct SYMBOL_TABLE* table, const char* name)
     return NULL;
 }
 
+static unsigned long __get_datatype_size(enum DECLARATION_DATA_TYPE dt) {
+    switch (dt) {
+        case DECLARATION_B_T: return 1;
+        case DECLARATION_W_T: return 2;
+        case DECLARATION_D_T: return 4;
+        case DECLARATION_Q_T: return 8;
+        case DECLARATION_T_T: return 10;
+        case DECLARATION_Y_T: return 16;
+        case DECLARATION_Z_T: return 32;
+        default: return 1;
+    }
+}
+
+static char __get_datatype_modifier(enum DECLARATION_DATA_TYPE dt) {
+    switch (dt) {
+        case DECLARATION_B_T: return 'B';
+        case DECLARATION_W_T: return 'W';
+        case DECLARATION_D_T: return 'D';
+        case DECLARATION_Q_T: return 'Q';
+        case DECLARATION_T_T: return 'T';
+        case DECLARATION_Y_T: return 'Y';
+        case DECLARATION_Z_T: return 'Z';
+        default: return 'B';
+    }
+}
+
+void ir_populate_symbol_table(struct AST* ast, struct SYMBOL_TABLE* symtab) {
+    if (!ast || !symtab) return;
+    
+    unsigned long current_address = 0x01000000;
+    
+    for (int i = 0; i < ast->count; i++) {
+        struct STATEMENT* stmt = &ast->statements[i];
+        
+        switch (stmt->type) {
+            case STATEMENT_LABEL_T: {
+                struct SYMBOL sym;
+                sym.name = stmt->as.lable;
+                sym.type = SYMBOL_LABLE_T;
+                sym.as.lable.address = current_address;
+                symbol_table_insert(symtab, &sym);
+                break;
+            }
+            case STATEMENT_DECLARATION_T: {
+                struct DECLARATION* decl = &stmt->as.decl;
+                struct SYMBOL sym;
+                sym.name = decl->name;
+                
+                if (decl->type == DECLARATION_COMPONENT_CONST_T) {
+                    sym.type = SYMBOL_CONSTANT_T;
+                    sym.as.constant.modifier = __get_datatype_modifier(decl->dt);
+                    
+                    // Simple parsing of immediate value literal for mock (assuming hex/dec)
+                    sym.as.constant.value = strtol(decl->as.cnst.value.value, NULL, 0);
+                    symbol_table_insert(symtab, &sym);
+                    
+                } else if (decl->type == DECLARATION_COMPONENT_DATA_T) {
+                    sym.type = SYMBOL_DATA_T;
+                    sym.as.data.modifier = __get_datatype_modifier(decl->dt);
+                    sym.as.data.address = current_address;
+                    sym.as.data.size = decl->as.vals.count;
+                    symbol_table_insert(symtab, &sym);
+                    
+                    current_address += __get_datatype_size(decl->dt) * decl->as.vals.count;
+                    
+                } else if (decl->type == DECLARATION_COMPONENT_RESERVE_T) {
+                    sym.type = SYMBOL_DATA_T;
+                    sym.as.data.modifier = __get_datatype_modifier(decl->dt);
+                    sym.as.data.address = current_address;
+                    sym.as.data.size = decl->as.resv.size;
+                    symbol_table_insert(symtab, &sym);
+                    
+                    current_address += __get_datatype_size(decl->dt) * decl->as.resv.size;
+                }
+                break;
+            }
+            case STATEMENT_INSTRUCTION_T: {
+                // Mock instruction size (fixed 4 bytes for now)
+                current_address += 4;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
 void ir_dump_symbol_table(struct SYMBOL_TABLE* table) {
     DEBUG(IR_DEBUG_SYM_DES, {
         for (unsigned int i = 0; i < table->capacity; i++) {
