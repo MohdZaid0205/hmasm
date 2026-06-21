@@ -143,4 +143,10 @@
 #define IR_DEBUG_SYM_CON "  [CONST] %(%s%) (@%c) = 0x%lX" NLINE
 #define IR_DEBUG_SYM_DAT "  [DATA ] %(%s%) (@%c) @ 0x%08lX (size: %lu bytes)" NLINE
 
+#define ISA_ISM_DES "isa encoutered a syntax mismatch for instruction %(%s%)" NLINE
+#define ISA_ISM_LN1 "no handler implements the provided operand signature" NLINE
+#define ISA_ISM_LN2 "supported signatures are:" NLINE
+#define ISA_ISM_OPR "%(\t-%) %s, %s, %s" NLINE
+#define ISA_ISM_END "instruction %(FAILED%) near %(%s%)" NLINE NLINE
+
 #endif

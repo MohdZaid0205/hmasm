@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "exceptions.h"
 #include "strdump.h"
+#include "isa.h"
 #include "pch.h"
 
 
@@ -12,7 +13,7 @@ bool parse_directive        (FILE* source, struct LEXEME_TOKEN* kw, struct STATE
 bool parse_block            (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
 bool parse_data_declaration (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
 bool parse_const_declaration(FILE* source, struct STATEMENT* stmt);
-bool parse_instruction      (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt);
+bool parse_instruction      (FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt, const struct ASSEMBLER_ISA* isa);
 bool peek_token             (FILE* source, struct LEXEME_TOKEN* result);
 bool get_next_token         (FILE* source, struct LEXEME_TOKEN* result, bool raw_mode);
 
@@ -50,7 +51,9 @@ bool get_next_token         (FILE* source, struct LEXEME_TOKEN* result, bool raw
     }, mnemonic)
 
 #ifdef PARSER_DEBUG
-    // TODO: add debug statements
+    #define PARSER_DEBUG_STMT(x) DEBUG("[PARSER] Created statement: %s\n", {}, x)
+#else
+    #define PARSER_DEBUG_STMT(x)
 #endif
 
 
@@ -68,7 +71,7 @@ bool get_next_token(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode) {
     return lexer(source, result, raw_mode);
 }
 
-static bool __parse_operand(FILE* source, struct INSTRUCTION_COMPONENT* comp, int line_no) {
+static bool __parse_operand(FILE* source, struct INSTRUCTION_COMPONENT* comp, int line_no, const struct ASSEMBLER_ISA* isa) {
     struct LEXEME_TOKEN tok;
     if (!get_next_token(source, &tok, false)) return false;
     
@@ -77,10 +80,15 @@ static bool __parse_operand(FILE* source, struct INSTRUCTION_COMPONENT* comp, in
         comp->as.imm.value = strdup(tok.as.lit.data);
         comp->as.imm.lable = NULL;
     } else if (tok.type == LEXEME_WRD) {
-        // We assume word is a register for now, ISA will validate/correct it
-        comp->type = INSTRUCTION_COMPONENT_REGISTER_T;
-        comp->as.reg.name = strdup(tok.as.wrd.data);
-        comp->as.reg.size = 0;
+        if (isa && isa->is_register && isa->is_register(tok.as.wrd.data)) {
+            comp->type = INSTRUCTION_COMPONENT_REGISTER_T;
+            comp->as.reg.name = strdup(tok.as.wrd.data);
+            comp->as.reg.size = 0;
+        } else {
+            comp->type = INSTRUCTION_COMPONENT_IMMIDIATE_T;
+            comp->as.imm.lable = strdup(tok.as.wrd.data);
+            comp->as.imm.value = NULL;
+        }
     } else {
         UNEXPECTED_TOKEN_EXCEPTION("Register or Immediate", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
         return false;
@@ -88,11 +96,10 @@ static bool __parse_operand(FILE* source, struct INSTRUCTION_COMPONENT* comp, in
     return true;
 }
 
-bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
+bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt, const struct ASSEMBLER_ISA* isa) {
     stmt->type = STATEMENT_INSTRUCTION_T;
     stmt->as.inst.mnemonic = strdup(kw->as.wrd.data);
     
-    // Initialize components
     stmt->as.inst.rd.type = -1;
     stmt->as.inst.rs1.type = -1;
     stmt->as.inst.rs2.type = -1;
@@ -110,13 +117,12 @@ bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* 
         if (next_line_no > kw->as.wrd.line_no) break;
         
         if (next.type == LEXEME_PUN && next.as.pun.data == ',') {
-            // Consume comma
             get_next_token(source, &next, false);
             continue;
         }
         
         if (current_comp < 3) {
-            if (!__parse_operand(source, components[current_comp], kw->as.wrd.line_no)) return false;
+            if (!__parse_operand(source, components[current_comp], kw->as.wrd.line_no, isa)) return false;
             current_comp++;
         } else {
             get_next_token(source, &next, false);
@@ -138,7 +144,7 @@ bool peek_token(FILE* source, struct LEXEME_TOKEN* result) {
     return false;
 }
 
-bool parse(FILE* source, struct AST* result) {
+bool parse(FILE* source, struct AST* result, const struct ASSEMBLER_ISA* isa) {
     result->count = 0;
     result->capacity = 16;
     result->statements = malloc(sizeof(struct STATEMENT) * result->capacity);
@@ -181,7 +187,7 @@ bool parse(FILE* source, struct AST* result) {
                 stmt.type = STATEMENT_LABEL_T;
                 stmt.as.lable = strdup(token.as.wrd.data);
             } else {
-                if (!parse_instruction(source, &token, &stmt)) return false;
+                if (!parse_instruction(source, &token, &stmt, isa)) return false;
             }
         }
         else {

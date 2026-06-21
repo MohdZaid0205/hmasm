@@ -18,6 +18,7 @@ typedef struct AST {
 // Main entry point for the parser. It continually pulls tokens from the lexer
 // and constructs the AST until EOF is reached.
 // Returns true on success, false if a syntax error occurred.
-bool parse(FILE* source, struct AST* result);
+struct ASSEMBLER_ISA;
+bool parse(FILE* source, struct AST* out, const struct ASSEMBLER_ISA* isa);
 
 #endif
