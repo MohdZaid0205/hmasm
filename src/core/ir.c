@@ -41,7 +41,27 @@ void ir_dump_directive(struct DIRECTIVE* dir) {
 }
 
 void ir_dump_declaration(struct DECLARATION* decl) {
-    DEBUG_LN("", IR_DEBUG_DCL);
+    if (decl->type == DECLARATION_COMPONENT_CONST_T) {
+        printf("  [DECLARATION] CONST %s = %s\n", decl->name, decl->as.cnst.value.value);
+    } else {
+        DEBUG_LN("", IR_DEBUG_DCL);
+    }
+}
+
+static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
+    if ((int)comp->type == -1) return; // Uninitialized
+    
+    if (comp->type == INSTRUCTION_COMPONENT_REGISTER_T) {
+        printf(" [REG: %s]", comp->as.reg.name);
+    } else if (comp->type == INSTRUCTION_COMPONENT_IMMIDIATE_T) {
+        if (comp->as.imm.value) {
+            printf(" [IMM: %s]", comp->as.imm.value);
+        } else if (comp->as.imm.lable) {
+            printf(" [LBL: %s]", comp->as.imm.lable);
+        }
+    } else if (comp->type == INSTRUCTION_COMPONENT_ADDRESS_T) {
+        printf(" [ADR: %s(offset %s)]", comp->as.adr.name, comp->as.adr.offset);
+    }
 }
 
 static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
