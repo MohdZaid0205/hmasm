@@ -44,8 +44,28 @@ void ir_dump_declaration(struct DECLARATION* decl) {
     DEBUG_LN("", IR_DEBUG_DCL);
 }
 
+static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
+    if ((int)comp->type == -1) return; // Uninitialized
+    
+    if (comp->type == INSTRUCTION_COMPONENT_REGISTER_T) {
+        printf(" [REG: %s]", comp->as.reg.name);
+    } else if (comp->type == INSTRUCTION_COMPONENT_IMMIDIATE_T) {
+        if (comp->as.imm.value) {
+            printf(" [IMM: %s]", comp->as.imm.value);
+        } else if (comp->as.imm.lable) {
+            printf(" [LBL: %s]", comp->as.imm.lable);
+        }
+    } else if (comp->type == INSTRUCTION_COMPONENT_ADDRESS_T) {
+        printf(" [ADR: %s(offset %s)]", comp->as.adr.name, comp->as.adr.offset);
+    }
+}
+
 void ir_dump_instruction(struct INSTRUCTION* inst) {
-    DEBUG_LN("", IR_DEBUG_INS);
+    printf("  [INSTRUCTION] %s", inst->mnemonic ? inst->mnemonic : "UNKNOWN");
+    __dump_inst_comp(&inst->rd);
+    __dump_inst_comp(&inst->rs1);
+    __dump_inst_comp(&inst->rs2);
+    printf("\n");
 }
 
 void ir_dump_statement(struct STATEMENT* stmt) {

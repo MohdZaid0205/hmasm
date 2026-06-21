@@ -1,71 +1,71 @@
 {
   "version": 3,
-
-    "configurePresets": [
-      {
-        "name": "windows-debug",
-        "displayName": "WIN Debug",
-        "generator": "Ninja",
-        "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
-        "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Debug",
-          "LEXER_DEBUG": "ON",
-          "PARSER_DEBUG": "ON"
-        },
-        "condition": {
-          "type": "equals",
-          "lhs": "${hostSystemName}",
-          "rhs": "Windows"
-        }
+  "configurePresets": [
+    {
+      "name": "windows-debug",
+      "displayName": "WIN Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "LEXER_DEBUG": "ON",
+        "PARSER_DEBUG": "ON",
+        "IR_DEBUG": "ON"
       },
-      {
-        "name": "windows-release",
-        "displayName": "WIN Release",
-        "generator": "Ninja",
-        "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
-        "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Release"
-        },
-        "condition": {
-          "type": "equals",
-          "lhs": "${hostSystemName}",
-          "rhs": "Windows"
-        }
-      },
-      {
-        "name": "ubuntu-debug",
-        "displayName": "WSL Debug",
-        "generator": "Unix Makefiles",
-        "binaryDir": "${sourceDir}/out/Ubuntu/build/${presetName}",
-        "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Debug",
-          "CMAKE_C_COMPILER": "clang",
-          "LEXER_DEBUG": "ON",
-          "PARSER_DEBUG": "ON"
-        },
-        "condition": {
-          "type": "equals",
-          "lhs": "${hostSystemName}",
-          "rhs": "Linux"
-        }
-      },
-      {
-        "name": "ubuntu-release",
-        "displayName": "WSL Release",
-        "generator": "Unix Makefiles",
-        "binaryDir": "${sourceDir}/out/Ubuntu/build/${presetName}",
-        "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Release",
-          "CMAKE_C_COMPILER": "clang"
-        },
-        "condition": {
-          "type": "equals",
-          "lhs": "${hostSystemName}",
-          "rhs": "Linux"
-        }
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
-    ],
-
+    },
+    {
+      "name": "windows-release",
+      "displayName": "WIN Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/Windows/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ubuntu-debug",
+      "displayName": "WSL Debug",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/Ubuntu/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "clang",
+        "LEXER_DEBUG": "ON",
+        "PARSER_DEBUG": "ON",
+        "IR_DEBUG": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "ubuntu-release",
+      "displayName": "WSL Release",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/out/Ubuntu/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "clang"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ],
   "buildPresets": [
     {
       "name": "windows-debug-build",

@@ -68,19 +68,59 @@ bool get_next_token(FILE* source, struct LEXEME_TOKEN* result, bool raw_mode) {
     return lexer(source, result, raw_mode);
 }
 
+static bool __parse_operand(FILE* source, struct INSTRUCTION_COMPONENT* comp, int line_no) {
+    struct LEXEME_TOKEN tok;
+    if (!get_next_token(source, &tok, false)) return false;
+    
+    if (tok.type == LEXEME_LIT) {
+        comp->type = INSTRUCTION_COMPONENT_IMMIDIATE_T;
+        comp->as.imm.value = strdup(tok.as.lit.data);
+        comp->as.imm.lable = NULL;
+    } else if (tok.type == LEXEME_WRD) {
+        // We assume word is a register for now, ISA will validate/correct it
+        comp->type = INSTRUCTION_COMPONENT_REGISTER_T;
+        comp->as.reg.name = strdup(tok.as.wrd.data);
+        comp->as.reg.size = 0;
+    } else {
+        UNEXPECTED_TOKEN_EXCEPTION("Register or Immediate", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+        return false;
+    }
+    return true;
+}
+
 bool parse_instruction(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* stmt) {
     stmt->type = STATEMENT_INSTRUCTION_T;
+    stmt->as.inst.mnemonic = strdup(kw->as.wrd.data);
     
-    // Read operands until the next token is on a new line
+    // Initialize components
+    stmt->as.inst.rd.type = -1;
+    stmt->as.inst.rs1.type = -1;
+    stmt->as.inst.rs2.type = -1;
+    
+    struct INSTRUCTION_COMPONENT* components[3] = {&stmt->as.inst.rd, &stmt->as.inst.rs1, &stmt->as.inst.rs2};
+    int current_comp = 0;
+    
     struct LEXEME_TOKEN next;
     while (peek_token(source, &next)) {
-        // If the next token is on a different line, the instruction is over!
-        if (next.type == LEXEME_PUN && next.as.pun.line_no > kw->as.wrd.line_no) break;
-        if (next.type == LEXEME_WRD && next.as.wrd.line_no > kw->as.wrd.line_no) break;
-        if (next.type == LEXEME_LIT && next.as.lit.line_no > kw->as.wrd.line_no) break;
-        if (next.type == LEXEME_OPR && next.as.opr.line_no > kw->as.wrd.line_no) break;
+        int next_line_no = next.type == LEXEME_PUN ? next.as.pun.line_no :
+                          next.type == LEXEME_WRD ? next.as.wrd.line_no :
+                          next.type == LEXEME_LIT ? next.as.lit.line_no :
+                          next.as.opr.line_no;
+                          
+        if (next_line_no > kw->as.wrd.line_no) break;
         
-        get_next_token(source, &next, false);
+        if (next.type == LEXEME_PUN && next.as.pun.data == ',') {
+            // Consume comma
+            get_next_token(source, &next, false);
+            continue;
+        }
+        
+        if (current_comp < 3) {
+            if (!__parse_operand(source, components[current_comp], kw->as.wrd.line_no)) return false;
+            current_comp++;
+        } else {
+            get_next_token(source, &next, false);
+        }
     }
     
     return true;

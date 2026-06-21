@@ -63,10 +63,21 @@ target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_SUPPORT_INC_DIR})
 install(TARGETS ${TARGET_NAME} DESTINATION ${TARGET_INSTALL_PATH})
 
 option(LEXER_DEBUG "Enable lexer debug macros" OFF)
+option(PARSER_DEBUG "Enable parser debug macros" OFF)
+option(IR_DEBUG "Enable IR debug macros" OFF)
 
 if(LEXER_DEBUG)
     target_compile_definitions(${TARGET_NAME} PRIVATE LEXER_DEBUG)
 endif()
+
+if(PARSER_DEBUG)
+    target_compile_definitions(${TARGET_NAME} PRIVATE PARSER_DEBUG)
+endif()
+
+if(IR_DEBUG)
+    target_compile_definitions(${TARGET_NAME} PRIVATE IR_DEBUG)
+endif()
+
 
 # For predefined targets put them all into a folder (if possible)
 foreach(predef_target ALL_BUILD ZERO_CHECK INSTALL PACKAGE RUN_TESTS)
