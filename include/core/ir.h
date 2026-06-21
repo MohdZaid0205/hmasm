@@ -1,6 +1,6 @@
 #ifndef ASSEMBELR_IR_H
 #define ASSEMBELR_IR_H
-#include <stdio.h>
+#include "pch.h"
 
 // INSTRUCTION_TYPE aka InstructionType aka InstType
 // defines the type of instruction we are dealing with, it contains enums for

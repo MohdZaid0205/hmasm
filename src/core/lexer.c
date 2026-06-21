@@ -1,7 +1,7 @@
 #include "lexer.h"
 #include "exceptions.h"
 #include "strdump.h"
-#include <ctype.h>
+#include "pch.h"
 
 // WARNINGS and EXCEPTIONS along with DEBUG statements as per requirement
 

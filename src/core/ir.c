@@ -3,9 +3,7 @@
 #include "exceptions.h"
 #include "logging.h"
 #include "strdump.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "pch.h"
 
 void ir_dump_block(struct BLOCK* blk) {
     if (blk->type == BLOCK_OPTIMIZATION_T) {

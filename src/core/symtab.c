@@ -3,9 +3,7 @@
 #include "logging.h"
 #include "strdump.h"
 #include "parser.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include "pch.h"
 
 // FNV-1a 32-bit hash function
 static unsigned int __hash_fnv1a(const char* key) {

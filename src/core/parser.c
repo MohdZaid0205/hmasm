@@ -1,9 +1,7 @@
 #include "parser.h"
 #include "exceptions.h"
 #include "strdump.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "pch.h"
 
 
 // Forward Declarations

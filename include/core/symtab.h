@@ -2,7 +2,7 @@
 #define ASSEMBLER_SYMTAB_H
 
 #include "ir.h"
-#include <stdbool.h>
+#include "pch.h"
 
 // SYMBOL_TYPE
 // Defines the type of symbol we are storing in the Symbol Table.
