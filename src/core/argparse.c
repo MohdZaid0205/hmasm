@@ -197,7 +197,15 @@ _exit_invalid_isa:
     return false;
 }
 bool _argparse_parse_against_req_help(const char* string){
-    DEBUG("%(GUIDE%) has not been implemented yet\n", {}, "");
+    DEBUG("hmasm - The Custom Assembler\n", {}, "");
+    DEBUG("Usage: hmasm [options] file...\n", {}, "");
+    DEBUG("Options:\n", {}, "");
+    DEBUG("  -h, --help       Show this help message\n", {}, "");
+    DEBUG("  -o, --out <file> Output file path (default: a.bin)\n", {}, "");
+    DEBUG("  -f, --format     Format specifier (bin/exe/obj)\n", {}, "");
+    DEBUG("  -i, --isa        Architecture mapping/layout file\n", {}, "");
+    DEBUG("  --into-ir        Dump Intermediate Representation to file\n", {}, "");
+    DEBUG("  --from-ir        Assemble from Intermediate Representation\n", {}, "");
     return true;
 }
 bool _argparse_parse_against_asm_into_iR(const char* string){
