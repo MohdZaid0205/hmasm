@@ -1,8 +1,8 @@
-.section .data
-    msg: .asciz "Hello World!\n"
+%section data
+    %data @Z msg = [ "Hello World!\n" ]
 
-.section .text
-    .globl _start
+%section text
+    %global _start
 
 _start:
     # this apparently is supposed
