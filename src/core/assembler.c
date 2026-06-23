@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     
     if (_argparse_output_file) {
         if (bin_fmt.emit_file(_argparse_output_file, NULL, segments, 2)) {
-            INF("Successfully emitted output to %(%)%\n", _argparse_output_file);
+            INF("Successfully emitted output to %(%s%)\n", _argparse_output_file);
         } else {
             EXCEPTION("Failed to emit binary output to %s\n", {
                 EXCEPTION_LN("\t", "Ensure you have write permissions to the destination path.");
