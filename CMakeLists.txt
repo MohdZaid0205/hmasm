@@ -52,6 +52,9 @@ else()
 endif()
 
 set(TARGET_NAME "hmasm")
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/keystone EXCLUDE_FROM_ALL)
+
 add_executable(${TARGET_NAME} )
 target_sources(${TARGET_NAME} PRIVATE ${PROJ_SRC_FILES} )
 target_sources(${TARGET_NAME} PRIVATE ${PROJ_INC_FILES} )
@@ -60,6 +63,10 @@ target_sources(${TARGET_NAME} PRIVATE ${PROJ_FMT_FILES} )
 target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_INC_DIR}       )
 target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_CORE_INC_DIR}  )
 target_include_directories(${TARGET_NAME} PRIVATE ${PROJ_SUPPORT_INC_DIR})
+
+target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src/keystone/include)
+target_link_libraries(${TARGET_NAME} PRIVATE keystone stdc++ m)
+
 install(TARGETS ${TARGET_NAME} DESTINATION ${TARGET_INSTALL_PATH})
 
 option(LEXER_DEBUG "Enable lexer debug macros" OFF)

@@ -115,7 +115,8 @@
 #define IR_DEBUG_AST_DES "assembler successfully generated Abstract Syntax Tree (statements: %(%d%))" NLINE
 #define IR_DEBUG_AST_END "ast dump completed" NLINE
 
-#define IR_DEBUG_BLK_OPT "  [BLOCK: OPTIMIZATION] arch: %(%s%)" NLINE
+#define IR_DEBUG_BLK_OPT "  [BLOCK: OPTIMIZATION]" NLINE
+#define IR_DEBUG_BLK_ARC "    arch: %(%s%)" NLINE
 #define IR_DEBUG_BLK_MAC "  [BLOCK: MACRO] name: %(%s%)" NLINE
 #define IR_DEBUG_BLK_RAW "    raw data:" NLINE
 #define IR_DEBUG_BLK_RLN "      | %s" NLINE

@@ -7,20 +7,31 @@
 
 void ir_dump_block(struct BLOCK* blk) {
     if (blk->type == BLOCK_OPTIMIZATION_T) {
-        DEBUG_LN("", IR_DEBUG_BLK_OPT, blk->as.opt.arch ? blk->as.opt.arch : "UNKNOWN");
+        DEBUG_LN("", IR_DEBUG_BLK_OPT);
+        for (int i = 0; i < blk->as.opt.chunk_count; i++) {
+            DEBUG_LN("", IR_DEBUG_BLK_ARC, blk->as.opt.chunks[i].arch);
+            DEBUG_LN("", IR_DEBUG_BLK_RAW);
+            
+            char* data = strdup(blk->as.opt.chunks[i].data);
+            char* line = strtok(data, "\n");
+            while (line) {
+                DEBUG_LN("", IR_DEBUG_BLK_RLN, line);
+                line = strtok(NULL, "\n");
+            }
+            free(data);
+        }
     } else if (blk->type == BLOCK_MACRO_T) {
         DEBUG_LN("", IR_DEBUG_BLK_MAC, blk->as.mac.name ? blk->as.mac.name : "UNKNOWN");
+        DEBUG_LN("", IR_DEBUG_BLK_RAW);
+        
+        char* data = strdup(blk->data);
+        char* line = strtok(data, "\n");
+        while (line) {
+            DEBUG_LN("", IR_DEBUG_BLK_RLN, line);
+            line = strtok(NULL, "\n");
+        }
+        free(data);
     }
-    DEBUG_LN("", IR_DEBUG_BLK_RAW);
-    
-    // Print each line of raw data
-    char* data = strdup(blk->data);
-    char* line = strtok(data, "\n");
-    while (line) {
-        DEBUG_LN("", IR_DEBUG_BLK_RLN, line);
-        line = strtok(NULL, "\n");
-    }
-    free(data);
 }
 
 void ir_dump_directive(struct DIRECTIVE* dir) {
@@ -42,7 +53,7 @@ void ir_dump_directive(struct DIRECTIVE* dir) {
 
 void ir_dump_declaration(struct DECLARATION* decl) {
     if (decl->type == DECLARATION_COMPONENT_CONST_T) {
-        printf("  [DECLARATION] CONST %s = %s\n", decl->name, decl->as.cnst.value.value);
+        DEBUG_LN("", "  [DECLARATION] CONST %(%s%) = %(%s%)" NLINE, decl->name, decl->as.cnst.value.value);
     } else {
         DEBUG_LN("", IR_DEBUG_DCL);
     }
@@ -52,40 +63,25 @@ static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
     if ((int)comp->type == -1) return; // Uninitialized
     
     if (comp->type == INSTRUCTION_COMPONENT_REGISTER_T) {
-        printf(" [REG: %s]", comp->as.reg.name);
+        DBG(" %[REG: %s%]", comp->as.reg.name);
     } else if (comp->type == INSTRUCTION_COMPONENT_IMMIDIATE_T) {
         if (comp->as.imm.value) {
-            printf(" [IMM: %s]", comp->as.imm.value);
+            DBG(" %[IMM: %s%]", comp->as.imm.value);
         } else if (comp->as.imm.lable) {
-            printf(" [LBL: %s]", comp->as.imm.lable);
+            DBG(" %[LBL: %s%]", comp->as.imm.lable);
         }
     } else if (comp->type == INSTRUCTION_COMPONENT_ADDRESS_T) {
-        printf(" [ADR: %s(offset %s)]", comp->as.adr.name, comp->as.adr.offset);
+        DBG(" %[ADR: %s(offset %s)%]", comp->as.adr.name, comp->as.adr.offset);
     }
 }
 
-static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
-    if ((int)comp->type == -1) return; // Uninitialized
-    
-    if (comp->type == INSTRUCTION_COMPONENT_REGISTER_T) {
-        printf(" [REG: %s]", comp->as.reg.name);
-    } else if (comp->type == INSTRUCTION_COMPONENT_IMMIDIATE_T) {
-        if (comp->as.imm.value) {
-            printf(" [IMM: %s]", comp->as.imm.value);
-        } else if (comp->as.imm.lable) {
-            printf(" [LBL: %s]", comp->as.imm.lable);
-        }
-    } else if (comp->type == INSTRUCTION_COMPONENT_ADDRESS_T) {
-        printf(" [ADR: %s(offset %s)]", comp->as.adr.name, comp->as.adr.offset);
-    }
-}
 
 void ir_dump_instruction(struct INSTRUCTION* inst) {
-    printf("  [INSTRUCTION] %s", inst->mnemonic ? inst->mnemonic : "UNKNOWN");
+    DBG("  %[[INSTRUCTION]%] %(%s%)", inst->mnemonic ? inst->mnemonic : "UNKNOWN");
     __dump_inst_comp(&inst->rd);
     __dump_inst_comp(&inst->rs1);
     __dump_inst_comp(&inst->rs2);
-    printf("\n");
+    DBG(NLINE);
 }
 
 void ir_dump_statement(struct STATEMENT* stmt) {

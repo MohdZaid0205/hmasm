@@ -214,7 +214,8 @@ bool is_directive(const char* word) {
         || CHECK("extern")
         || CHECK("entry")
         || CHECK("include")
-        || CHECK("error");
+        || CHECK("error")
+        || CHECK("register");
 }
 
 bool is_block(const char* word) {
@@ -238,6 +239,46 @@ bool parse_directive(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* st
     else if (CHECK("entry"))   stmt->as.dir.type = DIRECTIVE_ENTRY_T;
     else if (CHECK("include")) stmt->as.dir.type = DIRECTIVE_INCLUDE_T;
     else if (CHECK("error"))   stmt->as.dir.type = DIRECTIVE_ERROR_T;
+    else if (CHECK("register")) stmt->as.dir.type = DIRECTIVE_REGISTER_ALIAS_T;
+
+    if (stmt->as.dir.type == DIRECTIVE_REGISTER_ALIAS_T) {
+        struct LEXEME_TOKEN tok;
+        // Parse <name>
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+            UNEXPECTED_TOKEN_EXCEPTION("Alias Name", "Invalid Token", kw->as.wrd.line_no, kw->as.wrd.char_no);
+            return false;
+        }
+        stmt->as.dir.target = strdup(tok.as.wrd.data);
+        
+        // Parse :=
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != ':') {
+            UNEXPECTED_TOKEN_EXCEPTION(":", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '=') {
+            UNEXPECTED_TOKEN_EXCEPTION("=", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        
+        // Parse <reg>
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+            UNEXPECTED_TOKEN_EXCEPTION("Target Register", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        stmt->as.dir.modifier = strdup(tok.as.wrd.data);
+        
+        // Parse @<arch>
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_PUN || tok.as.pun.data != '@') {
+            UNEXPECTED_TOKEN_EXCEPTION("@", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        if (!get_next_token(source, &tok, false) || tok.type != LEXEME_WRD) {
+            UNEXPECTED_TOKEN_EXCEPTION("Target Architecture", "Invalid Token", tok.as.pun.line_no, tok.as.pun.char_no);
+            return false;
+        }
+        stmt->as.dir.arch = strdup(tok.as.wrd.data);
+        return true;
+    }
 
     struct LEXEME_TOKEN target;
     if (!get_next_token(source, &target, false)) {
@@ -258,6 +299,7 @@ bool parse_directive(FILE* source, struct LEXEME_TOKEN* kw, struct STATEMENT* st
     }
     
     stmt->as.dir.modifier = NULL;
+    stmt->as.dir.arch = NULL;
 
     return true;
 }
@@ -269,16 +311,77 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
     struct LEXEME_TOKEN header_line;
     get_next_token(source, &header_line, true);
     
+    char end_marker[256];
+    sprintf(end_marker, "%%%s .", word);
+
     if (CHECK("optimization")) {
         stmt->as.blk.type = BLOCK_OPTIMIZATION_T;
-        char arch_name[256] = {0};
+        stmt->as.blk.as.opt.chunk_count = 0;
+        stmt->as.blk.as.opt.chunks = malloc(sizeof(struct OPT_CHUNK) * 16);
+        stmt->as.blk.data = NULL; // Unused for opt
+
+        char current_arch[256] = {0};
         const char* ptr = header_line.as.lit.data;
         while (*ptr == ' ' || *ptr == '\t' || *ptr == '@') ptr++;
         int i = 0;
         while (*ptr && *ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '\r') {
-            arch_name[i++] = *ptr++;
+            current_arch[i++] = *ptr++;
         }
-        stmt->as.blk.as.opt.arch = strdup(arch_name);
+        
+        int data_cap = 1024;
+        int data_len = 0;
+        char* current_data = malloc(data_cap);
+        current_data[0] = '\0';
+        
+        struct LEXEME_TOKEN raw_line;
+        bool end_found = false;
+        
+        while (get_next_token(source, &raw_line, true)) {
+            if (strncmp(raw_line.as.lit.data, end_marker, strlen(end_marker)) == 0) {
+                // save current chunk
+                stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].arch = strdup(current_arch);
+                stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].data = current_data;
+                stmt->as.blk.as.opt.chunk_count++;
+                end_found = true;
+                break; 
+            }
+            
+            if (strncmp(raw_line.as.lit.data, "%optimization @", 15) == 0) {
+                // Save current chunk
+                stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].arch = strdup(current_arch);
+                stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].data = current_data;
+                stmt->as.blk.as.opt.chunk_count++;
+                
+                // Parse new arch
+                memset(current_arch, 0, sizeof(current_arch));
+                ptr = raw_line.as.lit.data + 15;
+                i = 0;
+                while (*ptr && *ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '\r') {
+                    current_arch[i++] = *ptr++;
+                }
+                
+                // Start new chunk
+                data_cap = 1024;
+                data_len = 0;
+                current_data = malloc(data_cap);
+                current_data[0] = '\0';
+                continue;
+            }
+            
+            int line_len = raw_line.as.lit.size_of;
+            if (data_len + line_len + 2 > data_cap) {
+                data_cap = data_len + line_len + 1024;
+                current_data = realloc(current_data, data_cap);
+            }
+            strcat(current_data, raw_line.as.lit.data);
+            strcat(current_data, "\n");
+            data_len += line_len + 1;
+        }
+        
+        if (!end_found) {
+            UNEXPECTED_TOKEN_EXCEPTION(end_marker, "EOF", keyword->as.wrd.line_no, keyword->as.wrd.char_no);
+            return false;
+        }
     } else if (CHECK("macro")) {
         stmt->as.blk.type = BLOCK_MACRO_T;
         // Parse the macro name
@@ -290,39 +393,37 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
             mac_name[i++] = *ptr++;
         }
         stmt->as.blk.as.mac.name = strdup(mac_name);
-    }
-    
-    char end_marker[256];
-    sprintf(end_marker, "%%%s .", word);
-    
-    int data_cap = 1024;
-    int data_len = 0;
-    stmt->as.blk.data = malloc(data_cap);
-    stmt->as.blk.data[0] = '\0';
-    
-    struct LEXEME_TOKEN raw_line;
-    bool end_found = false;
-    
-    while (get_next_token(source, &raw_line, true)) {
-        if (strncmp(raw_line.as.lit.data, end_marker, strlen(end_marker)) == 0) {
-            end_found = true;
-            break; 
+        
+        int data_cap = 1024;
+        int data_len = 0;
+        stmt->as.blk.data = malloc(data_cap);
+        stmt->as.blk.data[0] = '\0';
+        
+        struct LEXEME_TOKEN raw_line;
+        bool end_found = false;
+        
+        while (get_next_token(source, &raw_line, true)) {
+            if (strncmp(raw_line.as.lit.data, end_marker, strlen(end_marker)) == 0) {
+                end_found = true;
+                break; 
+            }
+            
+            int line_len = raw_line.as.lit.size_of;
+            if (data_len + line_len + 2 > data_cap) {
+                data_cap *= 2;
+                stmt->as.blk.data = realloc(stmt->as.blk.data, data_cap);
+            }
+            strcat(stmt->as.blk.data, raw_line.as.lit.data);
+            strcat(stmt->as.blk.data, "\n");
+            data_len += line_len + 1;
         }
         
-        int line_len = raw_line.as.lit.size_of;
-        if (data_len + line_len + 2 > data_cap) {
-            data_cap *= 2;
-            stmt->as.blk.data = realloc(stmt->as.blk.data, data_cap);
+        if (!end_found) {
+            UNEXPECTED_TOKEN_EXCEPTION(end_marker, "EOF", keyword->as.wrd.line_no, keyword->as.wrd.char_no);
+            return false;
         }
-        strcat(stmt->as.blk.data, raw_line.as.lit.data);
-        strcat(stmt->as.blk.data, "\n");
-        data_len += line_len + 1;
     }
     
-    if (!end_found) {
-        UNEXPECTED_TOKEN_EXCEPTION(end_marker, "EOF", keyword->as.wrd.line_no, keyword->as.wrd.char_no);
-        return false;
-    }
     return true;
 }
 

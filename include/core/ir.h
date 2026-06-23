@@ -243,6 +243,7 @@ typedef struct DIRECTIVE {
     enum DIRECTIVE_TYPE type;           // type of directive we are handling
     char* target;                       // primary argument (e.g., "TEXT", "printf")
     char* modifier;                     // secondary argument (e.g., "[RWX]")
+    char* arch;                         // architecture for register alias
     int value;                          // numeric argument if required (e.g., align)
 } Directive, Dir;
 
@@ -270,11 +271,19 @@ typedef struct BLOCK_COMPONENT_MACRO {
 } BlockComponentMacro, BlkCompMac;
 
 
+// OPT_CHUNK
+// Holds a single architecture-specific chunk of optimization assembly.
+typedef struct OPT_CHUNK {
+    char* arch;
+    char* data;
+} OptChunk;
+
 // BLOCK_COMPONENT_OPTIMIZATION aka BlockComponentOptimization & BlkCompOpt
 // BLOCK_COMPONENT_OPTIMIZATION represents metadata for an optimization block,
-// holding the target architecture for which the contained code is intended.
+// holding an array of architecture chunks.
 typedef struct BLOCK_COMPONENT_OPTIMIZATION {
-    char* arch;                         // target architecture (e.g., "RISC-V")
+    struct OPT_CHUNK* chunks;           // array of chunks
+    int chunk_count;                    // number of chunks
 } BlockComponentOptimization, BlkCompOpt;
 
 

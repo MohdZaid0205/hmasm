@@ -1,6 +1,7 @@
 #include "isa.h"
 #include <string.h>
 #include <stdlib.h>
+#include <keystone/keystone.h>
 
 bool riscv_is_register(const char* token) {
     if (token[0] != 'a' && token[0] != 'x' && token[0] != 't' && token[0] != 's') return false;
@@ -20,12 +21,41 @@ unsigned int riscv_encode_instruction(struct INSTRUCTION* inst, unsigned char* o
     return 0;
 }
 
+unsigned int riscv_encode_raw(const char* raw_asm, unsigned char* out_buffer, unsigned long current_address) {
+    ks_engine *ks;
+    ks_err err = ks_open(KS_ARCH_RISCV, KS_MODE_RISCV32, &ks);
+    if (err != KS_ERR_OK) {
+        EXCEPTION("Keystone failed to initialize", {}, "");
+        return 0;
+    }
+    
+    unsigned char *encode;
+    size_t size;
+    size_t count;
+    
+    if (ks_asm(ks, raw_asm, current_address, &encode, &size, &count) != KS_ERR_OK) {
+        EXCEPTION("Keystone failed to assemble native block" NLINE, {
+            EXCEPTION_LN("\t", "Error: %s" NLINE, ks_strerror(ks_errno(ks)));
+            EXCEPTION_EN("keystone error" NLINE);
+        }, "");
+        ks_close(ks);
+        return 0;
+    }
+    
+    memcpy(out_buffer, encode, size);
+    ks_free(encode);
+    ks_close(ks);
+    
+    return size;
+}
+
 const struct ASSEMBLER_ISA riscv_isa = {
     .name = "riscv",
     .desc = "RISC-V 32-bit Architecture Backend",
     .is_register = riscv_is_register,
     .validate_and_get_size = riscv_validate_and_get_size,
-    .encode_instruction = riscv_encode_instruction
+    .encode_instruction = riscv_encode_instruction,
+    .encode_raw = riscv_encode_raw
 };
 
 __attribute__((constructor)) static void register_riscv_isa(void) {
