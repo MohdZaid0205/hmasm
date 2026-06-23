@@ -1,18 +1,44 @@
 #include "fmt.h"
-#include "pch.h"
+#include <stdio.h>
 
-void bin_format();
+IMPLEMENT_FORMATTER(bin) {
+    FILE* out = fopen(output_path, "wb");
+    if (!out) return false;
+    
+    SECTION("text") {
+        if (segment->buffer && segment->size > 0) {
+            fwrite(segment->buffer, 1, segment->size, out);
+        }
+    }
 
-static const struct ASSEMBLER_FMT formatter = {
+    SECTION("rodata") {
+        if (segment->buffer && segment->size > 0) {
+            fwrite(segment->buffer, 1, segment->size, out);
+        }
+    }
+
+    SECTION("data") {
+        if (segment->buffer && segment->size > 0) {
+            fwrite(segment->buffer, 1, segment->size, out);
+        }
+    }
+    
+    SECTION("bss") {
+        if (segment->size > 0) {
+            // raw bin fills bss with zeroes
+            for (unsigned int i = 0; i < segment->size; i++) {
+                fputc(0, out);
+            }
+        }
+    }
+    
+    fclose(out);
+    return true;
+}
+
+const struct ASSEMBLER_FMT bin_fmt = {
     .name = "bin",
-    .desc = "format that ommits raw binary file",
-    .format = bin_format,
+    .extension = ".bin",
+    .desc = "Raw Binary Format",
+    .emit_file = fmt_bin_emit
 };
-
-void bin_format(){
-    printf("Helo BIN\n");
-}
-
-__attribute__((constructor)) static void register_bin(){
-    register_fmt(&formatter);
-}
