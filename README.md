@@ -23,7 +23,7 @@ Hold My **Assembler** as it is a **modular**, **retargetable** assembler built t
 > Binaries and Installation procedure will be provided once `hmasm` development is complete.
 
 ```cmd
-git clone https://github.com/MohdZaid0205/hmasm.git
+git clone https://github.com/MohdZaid0205/hmasm.git --recursive
 ```
 
 ### Install `build tools`
@@ -75,7 +75,7 @@ cmake --build . --preset <build-preset-name> --clean-first --target install
 To use `HMASM` use binaries contained within `bin/`.
 
 ```cmd
-hmasm-<fmt>-<isa> <flags> <file[s]>
+hmasm file.s --format bin --isa riscv --out out.bin
 ...
 ```
 
