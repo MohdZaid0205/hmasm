@@ -337,7 +337,10 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
         bool end_found = false;
         
         while (get_next_token(source, &raw_line, true)) {
-            if (strncmp(raw_line.as.lit.data, end_marker, strlen(end_marker)) == 0) {
+            const char* cmp_ptr = raw_line.as.lit.data;
+            while (*cmp_ptr == ' ' || *cmp_ptr == '\t') cmp_ptr++;
+
+            if (strncmp(cmp_ptr, end_marker, strlen(end_marker)) == 0) {
                 // save current chunk
                 stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].arch = strdup(current_arch);
                 stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].data = current_data;
@@ -346,7 +349,7 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
                 break; 
             }
             
-            if (strncmp(raw_line.as.lit.data, "%optimization @", 15) == 0) {
+            if (strncmp(cmp_ptr, "%optimization @", 15) == 0) {
                 // Save current chunk
                 stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].arch = strdup(current_arch);
                 stmt->as.blk.as.opt.chunks[stmt->as.blk.as.opt.chunk_count].data = current_data;
@@ -354,7 +357,7 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
                 
                 // Parse new arch
                 memset(current_arch, 0, sizeof(current_arch));
-                ptr = raw_line.as.lit.data + 15;
+                ptr = cmp_ptr + 15;
                 i = 0;
                 while (*ptr && *ptr != ' ' && *ptr != '\t' && *ptr != '\n' && *ptr != '\r') {
                     current_arch[i++] = *ptr++;
@@ -403,7 +406,10 @@ bool parse_block(FILE* source, struct LEXEME_TOKEN* keyword, struct STATEMENT* s
         bool end_found = false;
         
         while (get_next_token(source, &raw_line, true)) {
-            if (strncmp(raw_line.as.lit.data, end_marker, strlen(end_marker)) == 0) {
+            const char* cmp_ptr = raw_line.as.lit.data;
+            while (*cmp_ptr == ' ' || *cmp_ptr == '\t') cmp_ptr++;
+
+            if (strncmp(cmp_ptr, end_marker, strlen(end_marker)) == 0) {
                 end_found = true;
                 break; 
             }
