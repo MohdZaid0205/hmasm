@@ -63,21 +63,21 @@ static void __dump_inst_comp(struct INSTRUCTION_COMPONENT* comp) {
     if ((int)comp->type == -1) return; // Uninitialized
     
     if (comp->type == INSTRUCTION_COMPONENT_REGISTER_T) {
-        DBG(" %[REG: %s%]", comp->as.reg.name);
+        DBG(" REG %(%s%)", comp->as.reg.name);
     } else if (comp->type == INSTRUCTION_COMPONENT_IMMIDIATE_T) {
         if (comp->as.imm.value) {
-            DBG(" %[IMM: %s%]", comp->as.imm.value);
+            DBG(" IMM %(%s%)", comp->as.imm.value);
         } else if (comp->as.imm.lable) {
-            DBG(" %[LBL: %s%]", comp->as.imm.lable);
+            DBG(" LBL %(%s%)", comp->as.imm.lable);
         }
     } else if (comp->type == INSTRUCTION_COMPONENT_ADDRESS_T) {
-        DBG(" %[ADR: %s(offset %s)%]", comp->as.adr.name, comp->as.adr.offset);
+        DBG(" ADR: %(%s(offset %s)%)", comp->as.adr.name, comp->as.adr.offset);
     }
 }
 
 
 void ir_dump_instruction(struct INSTRUCTION* inst) {
-    DBG("  %[[INSTRUCTION]%] %(%s%)", inst->mnemonic ? inst->mnemonic : "UNKNOWN");
+    DBG("  INSTRUCTION %(%s%)", inst->mnemonic ? inst->mnemonic : "UNKNOWN");
     __dump_inst_comp(&inst->rd);
     __dump_inst_comp(&inst->rs1);
     __dump_inst_comp(&inst->rs2);

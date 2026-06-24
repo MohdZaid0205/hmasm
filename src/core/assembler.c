@@ -184,8 +184,8 @@ int main(int argc, char** argv) {
     
     if (!_argparse_source_file) {
         EXCEPTION("No source file provided for assembly.", {
-            EXCEPTION_LN("\t", "Usage: hmasm [options] <source_file>");
-            EXCEPTION_EN("missing arguments");
+            EXCEPTION_LN("\t", "Usage: hmasm [options] <source_file>" NLINE);
+            EXCEPTION_EN("missing arguments" NLINE);
         }, "");
         return 1;
     }
@@ -193,8 +193,8 @@ int main(int argc, char** argv) {
     FILE* src = fopen(_argparse_source_file, "r");
     if (!src) {
         EXCEPTION("Could not open source file %s\n", {
-            EXCEPTION_LN("\t", "Please verify that the file exists and is accessible.");
-            EXCEPTION_EN("file operation failed");
+            EXCEPTION_LN("\t", "Please verify that the file exists and is accessible." NLINE);
+            EXCEPTION_EN("file operation failed" NLINE);
         }, _argparse_source_file);
         return 1;
     }
@@ -205,9 +205,9 @@ int main(int argc, char** argv) {
     
     struct AST ast;
     if (!parse(src, &ast, &riscv_isa)) {
-        EXCEPTION("The parser encountered a fatal error and could not generate an AST.\n", {
-            EXCEPTION_LN("\t", "Review the syntax of the input source file.");
-            EXCEPTION_EN("parser failed");
+        EXCEPTION("The parser encountered a fatal error and could not generate an AST." NLINE, {
+            EXCEPTION_LN("\t", "Review the syntax of the input source file." NLINE);
+            EXCEPTION_EN("parser failed" NLINE);
         }, "");
         fclose(src);
         return 1;
@@ -242,11 +242,11 @@ int main(int argc, char** argv) {
     
     if (_argparse_output_file) {
         if (bin_fmt.emit_file(_argparse_output_file, NULL, segments, 4)) {
-            INF("Successfully emitted output to %(%s%)\n", _argparse_output_file);
+            INF("Successfully emitted output to %(%s%)" NLINE, _argparse_output_file);
         } else {
-            EXCEPTION("Failed to emit binary output to %s\n", {
-                EXCEPTION_LN("\t", "Ensure you have write permissions to the destination path.");
-                EXCEPTION_EN("format generation failed");
+            EXCEPTION("Failed to emit binary output to %s" NLINE, {
+                EXCEPTION_LN("\t", "Ensure you have write permissions to the destination path." NLINE);
+                EXCEPTION_EN("format generation failed" NLINE);
             }, _argparse_output_file);
         }
     }
