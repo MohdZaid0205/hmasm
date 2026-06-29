@@ -9,6 +9,7 @@
 #include "parser.h"
 #include "ir.h"
 
+
 extern const struct ASSEMBLER_ISA riscv_isa;
 extern const struct ASSEMBLER_FMT bin_fmt;
 
@@ -103,8 +104,10 @@ static void process_ast(struct AST* ast, const struct ASSEMBLER_ISA* isa, struct
                 
                 if (!success && default_chunk) {
                     INF("%([ BLOCK: OPTIMIZATION ]%) Native compilation %(FAILED%), falling back to %(@default%) chunk..." NLINE);
-                    FILE* mem_stream = fmemopen(default_chunk, strlen(default_chunk), "r");
+                    FILE* mem_stream = tmpfile();
                     if (mem_stream) {
+                        fwrite(default_chunk, 1, strlen(default_chunk), mem_stream);
+                        rewind(mem_stream);
                         struct AST sub_ast;
                         if (parse(mem_stream, &sub_ast, isa)) {
                             process_ast(&sub_ast, isa, &current_seg, text_seg, data_seg, rodata_seg, bss_seg);
@@ -115,8 +118,10 @@ static void process_ast(struct AST* ast, const struct ASSEMBLER_ISA* isa, struct
                 if (default_chunk) free(default_chunk);
             } else if (default_chunk) {
                 INF("%([ BLOCK: OPTIMIZATION ]%) No native chunk found, using %(@default%) chunk..." NLINE);
-                FILE* mem_stream = fmemopen(default_chunk, strlen(default_chunk), "r");
+                FILE* mem_stream = tmpfile();
                 if (mem_stream) {
+                    fwrite(default_chunk, 1, strlen(default_chunk), mem_stream);
+                    rewind(mem_stream);
                     struct AST sub_ast;
                     if (parse(mem_stream, &sub_ast, isa)) {
                         process_ast(&sub_ast, isa, &current_seg, text_seg, data_seg, rodata_seg, bss_seg);

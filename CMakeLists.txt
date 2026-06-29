@@ -53,7 +53,22 @@ endif()
 
 set(TARGET_NAME "hmasm")
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/keystone EXCLUDE_FROM_ALL)
+# Copy and patch keystone into build dir to avoid modifying submodule
+set(KS_DIR "${CMAKE_BINARY_DIR}/ks")
+file(COPY "src/keystone" DESTINATION "${CMAKE_BINARY_DIR}")
+file(RENAME "${CMAKE_BINARY_DIR}/keystone" "${KS_DIR}")
+foreach(F "CMakeLists.txt" "llvm/CMakeLists.txt")
+    file(READ "${KS_DIR}/${F}" C)
+    string(REPLACE "cmake_policy(SET CMP0051 OLD)" "" C "${C}")
+    file(WRITE "${KS_DIR}/${F}" "${C}")
+endforeach()
+set(BUILD_LIBS_ONLY ON CACHE BOOL "" FORCE)
+
+if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wno-implicit-fallthrough -Wno-unknown-pragmas)
+endif()
+
+add_subdirectory(${KS_DIR} ${CMAKE_BINARY_DIR}/ks_build EXCLUDE_FROM_ALL)
 
 add_executable(${TARGET_NAME} )
 target_sources(${TARGET_NAME} PRIVATE ${PROJ_SRC_FILES} )
