@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }} (${{ matrix.config }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: ubuntu-debug
+            build-preset: ubuntu-debug-build
+            config: Debug
+          - os: ubuntu-latest
+            preset: ubuntu-release
+            build-preset: ubuntu-release-build
+            config: Release
+          - os: windows-latest
+            preset: windows-debug
+            build-preset: windows-debug-build
+            config: Debug
+          - os: windows-latest
+            preset: windows-release
+            build-preset: windows-release-build
+            config: Release
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Configure CMake
+      run: cmake --preset ${{ matrix.preset }} -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+    - name: Build
+      run: cmake --build --preset ${{ matrix.build-preset }}
