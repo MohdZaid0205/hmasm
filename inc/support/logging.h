@@ -149,7 +149,7 @@ const char* __get_associated_background_for(enum LOGGER_LEVEL_OPTION level);
 //		- %) : stops foreground highlight
 // 
 // NOTE: opening and closing stream is not job of this method, if user passes any 
-//		file as an input, they are required to make sure that it is open
+// NOTE:    file as an input, they are required to make sure that it is open and closed properly
 int lfprintf(LogLevel level, FILE* stream, const char* format, ...);
 
 // define macros required for main usage of logging and required application by

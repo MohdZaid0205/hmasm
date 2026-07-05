@@ -1,4 +1,4 @@
-# Grammar for `hmasm` assembly
+# Instructions for `hmasm` assembly
 
 Note the following symbols and their associated meanings:
 * `<...>` represents register only argument.

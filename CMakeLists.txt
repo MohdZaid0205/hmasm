@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 set(PROJ_NAME "HMASM"           )   # this is implementation of assembler.
 set(PROJ_LANG LANGUAGES C       )   # to be written in pure `C` no external libs.
-set(PROJ_VERS VERSION  0.00.3   )   # need to make sure to change this version.
+set(PROJ_VERS VERSION  0.00.4   )   # need to make sure to change this version.
 set(PROJ_DESC DESCRIPTION "implementation of assembler"         )
 
 project(${PROJ_NAME} ${PROJ_DESC} ${PROJ_LANG} ${PROJ_VERS})
@@ -24,22 +24,6 @@ file(GLOB PROJ_SRC_FILES "${PROJ_CORE_SRC_DIR}/*.c" "${PROJ_SUPPORT_SRC_DIR}/*.c
 file(GLOB PROJ_INC_FILES "${PROJ_CORE_INC_DIR}/*.h" "${PROJ_SUPPORT_INC_DIR}/*.h")
 file(GLOB PROJ_ISA_FILES "${PROJ_ISA_SRC_DIR}/*.c")
 file(GLOB PROJ_FMT_FILES "${PROJ_FMT_SRC_DIR}/*.c")
-
-# by default we compile all default isa(s) and format(s) otherwise user defined
-set(DEFINE_FMT "elf;pc;bin"         )
-set(DEFINE_ISA "i386;riscv32;arm32" )
-
-if(DEFINED TARGET_ISA)
-    set(ISA_TO_BUILD ${TARGET_ISA}  )
-else()
-    set(ISA_TO_BUILD ${DEFINE_ISA}  )
-endif()
-
-if(DEFINED TARGET_FMT)
-    set(FMT_TO_BUILD ${TARGET_FMT}  )
-else()
-    set(FMT_TO_BUILD ${DEFINE_FMT}  )
-endif()
 
 if (DEFINED INSTALL_IN_SYSTEM)
     message(STATUS "System install enabled (Value: ${INSTALL_IN_SYSTEM})")
