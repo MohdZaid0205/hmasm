@@ -10,7 +10,7 @@ project(${PROJ_NAME} ${PROJ_DESC} ${PROJ_LANG} ${PROJ_VERS})
 # For LAYER-1 (contains lexer-parser and IR generation logic) as executable **
 # ** -> executable has to be statically liked with one format and one isa
 set(PROJ_SRC_DIR "${CMAKE_SOURCE_DIR}/src"                  )
-set(PROJ_INC_DIR "${CMAKE_SOURCE_DIR}/include"              )
+set(PROJ_INC_DIR "${CMAKE_SOURCE_DIR}/inc"                  )
 
 set(PROJ_CORE_SRC_DIR    "${PROJ_SRC_DIR}/core"             )
 set(PROJ_CORE_INC_DIR    "${PROJ_INC_DIR}/core"             )

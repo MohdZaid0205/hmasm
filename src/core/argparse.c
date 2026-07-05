@@ -27,6 +27,7 @@
 		INFORMATION_LN(INSET2, ARGVS_IFCW_VOP, 2, ARGVS_ISW_O21, ARGVS_ISW_O22);\
 	)
 
+// FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
 #define INVALID_OUT_WARNING(file, extension)									\
 	INVALID_FILE_CONTEXT_WARNING("OUTPUT", file, extension,						\
 		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 1, ARGVS_IOW_O11, ARGVS_IOW_O12);\
@@ -157,6 +158,7 @@ bool _argparse_parse_against_output_file(const char* string) {
 	if (extension == NULL)
 		goto _warn_about_extension;
 
+    // FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
 	if (strcmp(extension, ".exe") == 0 ||
 		strcmp(extension, ".elf") == 0 ||
 		strcmp(extension, ".bin") == 0 ||

@@ -28,6 +28,7 @@
 #define ARGVS_ISW_O22 "intermediate representation of assembly"
 
 // argparse.h INVALID_OUT_WARNING(file, extension)
+// FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
 #define ARGVS_IOW_O11 ".exe/elf" 
 #define ARGVS_IOW_O21 ".asm.ir "
 #define ARGVS_IOW_O31 ".bin/raw"
