@@ -4,13 +4,13 @@
 void riscv32_instruction();
 
 static const struct ASSEMBLER_ISA architecture = {
-    .name = "worm",
-    .desc = "Worm Instruction Set (for simple virtual machine)",
+    .name = "riscv",
+    .desc = "Reduced Instruction Set Architecture 5",
     .instruction = riscv32_instruction,
 };
 
 void riscv32_instruction(){
-    printf("Hello Worm!\n");
+    printf("Hello riscv!\n");
 }
 
 __attribute__((constructor)) static void register_riscv32(){
