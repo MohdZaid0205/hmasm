@@ -14,7 +14,7 @@
 
 Hold My **Assembler** as it is a **modular**, **retargetable** assembler built to demystify the translation from mnemonic to machine code. Designed with a strict **3-Layer Architecture**, so that it completely decouples the parsing of assembly syntax from the generation of binary executables.
 
-![overview-diagram](./res/images/3-Layer-Architecture-Overview-Diagram.drawio.svg)
+![overview-diagram](./res/img/3-Layer-Architecture-Overview-Diagram.drawio.svg)
 
 
 ## **Installation** and **Usage**
