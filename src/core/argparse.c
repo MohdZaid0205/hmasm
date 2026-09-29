@@ -42,6 +42,13 @@
 		WARNING_EN(ARGVS_IPW_END, action);										\
 	}, flag)
 
+#define DEFAULTING_PRAM_WARNING(pram, value)                                    \
+    WARNING(ARGVS_DPW_DES, {                                                    \
+        WARNING_LN(INSET, ARGVS_DPW_LN1, ARGVS_NONE_PROVIDED);                  \
+        WARNING_LN(INSET, ARGVS_DPW_LN2);                                       \
+        WARNING_EN(ARGVS_DPW_END, pram, value);                                       \
+    }, pram, value)
+
 #define INVALID_FORMAT_EXCEPTION(provided)                                      \
     EXCEPTION(ARGVS_IFE_DES, {                                                  \
         EXCEPTION_LN(INSET, ARGVS_IFE_LN1, provided);                           \
@@ -139,6 +146,7 @@ bool _argparse_parse_against_source_file(const char* string) {
 	if (extension == NULL)
 		goto _warn_invalid_source;
 
+    // fixed input extension, no need to let format decide this
 	if (strcmp(extension, ".s"  ) == 0 ||
 		strcmp(extension, ".asm") == 0 ||
 		strcmp(extension, ".ir" ) == 0 )
@@ -247,12 +255,24 @@ void _argparse_action_against_asm_from_iR(const char* string){
 // -----------------------------------------------------------------------------+
 
 void _argparse_default_action_against_source_file() {
-	if (!_argparse_source_file)
+	if (!_argparse_source_file) {
 		_argparse_source_file = "a.asm";
+        goto _warn_about_defaulting;
+    }
+    return;
+
+_warn_about_defaulting:
+    DEFAULTING_PRAM_WARNING("SOURCE", "a.asm")
 }
 void _argparse_default_action_against_output_file() {
-	if (!_argparse_output_file)
+	if (!_argparse_output_file) {
 		_argparse_output_file = "a.bin";
+        goto _warn_about_defaulting;
+    }
+    return;
+
+_warn_about_defaulting:
+    DEFAULTING_PRAM_WARNING("OUTPUT", "a.bin")
 }
 void _argparse_default_action_against_fmt_type() {
 	if (!_argparse_fmt_type){

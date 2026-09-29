@@ -85,7 +85,7 @@ Constants are defined using the `%const` directive followed by a type identifier
 
 ## 6. Type-Aware Data Definitions and Reservations
 
-To allocate data in `.data` or `.rodata` sections, use the `%data` directive. For uninitialized memory in the `.bss` section, use `%reserve`.
+To allocate data in `DARA` or `RODATA` sections, use the `%data` directive. For uninitialized memory in the `.bss` section, use `%reserve`.
 
 ```asm
 %section DATA [RW-]

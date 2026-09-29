@@ -9,7 +9,7 @@ Note the following symbols and their associated meanings:
 ## `load` or `move` instruction
 
 ```asm
-move where?<>@@, what?<>@@##
+mov where?<>@@, what?<>@@##
 ;; moves from source provided in `what` clause to destination in `where` clause
 ;; source:
 ;;      <> : source may be a register.

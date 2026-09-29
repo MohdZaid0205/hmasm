@@ -42,6 +42,12 @@
 #define ARGVS_IPW_LN2 "why? :raised:warning:=>%(INVALID_PRAMETER_PASSED%)" NLINE
 #define ARGVS_IPW_END "flag has been %(%s%)" NLINE NLINE
 
+// argparse.h DEFAULTING_PRAM_WARNING(pram, file)
+#define ARGVS_DPW_DES "parameter %(%s%) was missing, using default value %(%s%)" NLINE
+#define ARGVS_DPW_LN1 "while trying to resolve for parameter, found %(%s%)" NLINE
+#define ARGVS_DPW_LN2 "why? :raised:warning:=>%(DEFAULTING_PRAM_WARNING%)" NLINE
+#define ARGVS_DPW_END "%(%s%) has been %(SET%) to %(%s%)" NLINE NLINE
+
 // argparse.h INVALID_FORMAT_EXCEPTION(prodivded)
 #define ARGVS_IFE_DES "assembler was provided with an invalid format=%(%s%)" NLINE
 #define ARGVS_IFE_LN1 "while trying to resolve %(-[-f]ormat%) found %(%s%) which is not recognised as a format" NLINE
