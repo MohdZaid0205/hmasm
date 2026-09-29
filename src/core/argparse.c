@@ -3,7 +3,6 @@
 #include "fmt.h"
 #include "isa.h"
 #include "strdump.h"
-#include <stdbool.h>
 
 // WARNINGS and EXCEPTIONS (no external handler for these functions are required)
 
