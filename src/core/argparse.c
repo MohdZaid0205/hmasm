@@ -3,6 +3,7 @@
 #include "fmt.h"
 #include "isa.h"
 #include "strdump.h"
+#include <stdbool.h>
 
 // WARNINGS and EXCEPTIONS (no external handler for these functions are required)
 
@@ -27,13 +28,19 @@
 		INFORMATION_LN(INSET2, ARGVS_IFCW_VOP, 2, ARGVS_ISW_O21, ARGVS_ISW_O22);\
 	)
 
-// FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
 #define INVALID_OUT_WARNING(file, extension)									\
-	INVALID_FILE_CONTEXT_WARNING("OUTPUT", file, extension,						\
-		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 1, ARGVS_IOW_O11, ARGVS_IOW_O12);\
-		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 2, ARGVS_IOW_O21, ARGVS_IOW_O22);\
-		INFORMATION_LN("\t\t", ARGVS_IFCW_VOP, 3, ARGVS_IOW_O31, ARGVS_IOW_O32);\
-	)
+	INVALID_FILE_CONTEXT_WARNING("OUTPUT", file, extension, {					\
+	    if (supported_fmt_count == 0){                                          \
+            INFORMATION_LN(INSET2, ARGVS_IOW_NOP, ARGVS_IOW_NO1, ARGVS_IOW_NO2);\
+        }                                                                       \
+        for (int i=0; i<supported_fmt_count; i++){                              \
+            INFORMATION_LN(                                                     \
+                INSET2, ARGVS_IOW_VOP, i,                                       \
+                supported_fmt_array[i]->extn,                                   \
+                supported_fmt_array[i]->desc                                    \
+            );                                                                  \
+        }                                                                       \
+    })
 
 #define INVALID_PRAM_WARNING(flag, pram, expect, action)						\
 	WARNING(ARGVS_IPW_DES, {													\
@@ -166,12 +173,10 @@ bool _argparse_parse_against_output_file(const char* string) {
 	if (extension == NULL)
 		goto _warn_about_extension;
 
-    // FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
-	if (strcmp(extension, ".exe") == 0 ||
-		strcmp(extension, ".elf") == 0 ||
-		strcmp(extension, ".bin") == 0 ||
-		strcmp(extension, ".ir" ) == 0 )
-		return true;
+    for (int i=0; i < supported_fmt_count; i++){
+        if (strcmp(extension, supported_fmt_array[i]->extn) == 0)
+            return true;
+    }
 
 _warn_about_extension:
 	INVALID_OUT_WARNING(string, extension ? extension : "<NULL>");
@@ -275,19 +280,15 @@ _warn_about_defaulting:
     DEFAULTING_PRAM_WARNING("OUTPUT", "a.bin")
 }
 void _argparse_default_action_against_fmt_type() {
-	if (!_argparse_fmt_type){
-        if (!_argparse_provided_fmt) {
-            INVALID_FORMAT_EXCEPTION(ARGVS_NONE_PROVIDED);
-        }
- 		exit(-1);
+	if (!_argparse_fmt_type || !_argparse_provided_fmt){
+        INVALID_FORMAT_EXCEPTION(ARGVS_NONE_PROVIDED);
+        _argparse_raised_panic = true;
     }
 }
 void _argparse_default_action_against_isa_type() {
-	if (!_argparse_isa_type){
-        if (!_argparse_provided_isa){
-            INVALID_ARCHITECTURE_EXCEPTION(ARGVS_NONE_PROVIDED);
-        }
-        exit(-1);
+	if (!_argparse_isa_type || !_argparse_provided_isa){
+        INVALID_ARCHITECTURE_EXCEPTION(ARGVS_NONE_PROVIDED);
+        _argparse_raised_panic = true;
     }
 }
 void _argparse_default_action_against_req_help() {
@@ -365,5 +366,8 @@ void argparse(int argc, char** argv) {
         _argparse_default_action_against_asm_into_iR();
         _argparse_default_action_against_asm_from_iR();
     }
+
+    if (_argparse_raised_panic)
+        exit(-1);
 }
 

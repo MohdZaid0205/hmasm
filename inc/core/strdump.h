@@ -28,13 +28,10 @@
 #define ARGVS_ISW_O22 "intermediate representation of assembly"
 
 // argparse.h INVALID_OUT_WARNING(file, extension)
-// FIXME: id=[000] make file extensions detection dynamic (DON'T HARDCODE!)
-#define ARGVS_IOW_O11 ".exe/elf" 
-#define ARGVS_IOW_O21 ".asm.ir "
-#define ARGVS_IOW_O31 ".bin/raw"
-#define ARGVS_IOW_O12 "final executable (platform deprendent)"
-#define ARGVS_IOW_O22 "intermideate representation of AST"
-#define ARGVS_IOW_O32 "raw binary as genrated by assembler"
+#define ARGVS_IOW_VOP "%d. %(%s%) : %s" NLINE
+#define ARGVS_IOW_NOP "%[<NO-OPTION-AVAILABLE>%] UPDATE %(%s%):%d" NLINE
+#define ARGVS_IOW_NO1 "src/fmt/fmt.c"
+#define ARGVS_IOW_NO2 "include/fmt.h"
 
 // argparse.h INVALID_PRAM_WARNING(flag, pram, expect, action)
 #define ARGVS_IPW_DES "assembler found an invalid parameter for flag %(%s%)" NLINE
