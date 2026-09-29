@@ -75,7 +75,7 @@ cmake --build . --preset <build-preset-name> --clean-first --target install
 To use `HMASM` use binaries contained within `bin/`.
 
 ```cmd
-hmasm-<fmt>-<isa> <flags> <file[s]>
+hmasm assembly.s -o assembly.bin -f bin -i riscv
 ...
 ```
 

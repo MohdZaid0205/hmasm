@@ -4,6 +4,7 @@
 typedef struct ASSEMBLER_FMT{
     const char* name;
     const char* desc;
+    const char* extn;
     void (*format)(void);
 } AssemblerFMT;
 

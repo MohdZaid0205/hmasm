@@ -6,6 +6,7 @@ void bin_format();
 static const struct ASSEMBLER_FMT formatter = {
     .name = "bin",
     .desc = "format that ommits raw binary file",
+    .extn = ".bin",
     .format = bin_format,
 };
 
