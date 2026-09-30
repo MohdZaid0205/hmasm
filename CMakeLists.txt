@@ -6,6 +6,9 @@ set(PROJ_VERS VERSION  0.00.4   )   # need to make sure to change this version.
 set(PROJ_DESC DESCRIPTION "implementation of assembler"         )
 
 project(${PROJ_NAME} ${PROJ_DESC} ${PROJ_LANG} ${PROJ_VERS})
+set(CMAKE_C_STANDARD            23 )
+set(CMAKE_C_STANDARD_REQUIRED   ON )
+set(CMAKE_C_EXTENSIONS          OFF)
 
 # For LAYER-1 (contains lexer-parser and IR generation logic) as executable **
 # ** -> executable has to be statically liked with one format and one isa

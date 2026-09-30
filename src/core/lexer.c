@@ -53,3 +53,101 @@ void _print_lexeme(struct LEXEME *lex) {
     }
 }
 
+// useless definitions to make things cleaner
+#define INCREMENT(x) x += 1
+#define DECREMENT(x) x -= 1
+#define CHECKC(v) c == v
+#define CHECKS(v) strncmp(v, s, strlen(v)) == 0
+
+// some pre-defined keywords
+static const char* keywords[] = {
+    "align",
+    "const",
+    "data",
+    "datatype",
+    "endmacro",
+    "entry",
+    "extern",
+    "global",
+    "include",
+    "macro",
+    "optimization",
+    "register",
+    "reserve",
+    "section",
+};
+
+// some pre-defined instructions
+static const char* isawords[] = {
+    "mov", "push", "pop",
+    "inc", "dec" ,
+    "add", "sub" , "mul", "div",
+    "and", "or"  , "xor", "not",
+    "shl", "shr" ,
+    "beq", "bneq",
+    "bg" , "bgeq",
+    "bs" , "bseq",
+    "jmp", "call",
+    "nop", "hlt" ,
+    "int", "sti" , "cli",
+};
+
+// utility functions for lexer
+bool _begin_idn(char c, char* s) {
+    return isalpha(c)
+        || CHECKC('_');
+}
+bool _begin_pun(char c, char* s) {
+    return CHECKC('%')
+        || CHECKC(':')
+        || CHECKC('[')
+        || CHECKC(']')
+        || CHECKC('(')
+        || CHECKC(')')
+        || CHECKC('@')
+        || CHECKC(',')
+        || CHECKC('.');
+}
+bool _begin_key(char c, char* s) {
+    bool is_key = false;
+    for (size_t i=0; i<sizeof(keywords)/sizeof(keywords[0]); i++)
+        is_key |= CHECKS(keywords[i]);
+    for (size_t i=0; i<sizeof(isawords)/sizeof(isawords[0]); i++)
+        is_key |= CHECKS(isawords[i]);
+    return is_key;
+}
+bool _begin_lit(char c, char* s) {
+    return CHECKC('"')
+        || CHECKC(';')
+        || isdigit(c);
+}
+bool _begin_opr(char c, char* s) {
+    return CHECKC('=')
+        || CHECKC('*')
+        || CHECKC('-');
+}
+bool _begin_nul(char c, char* s) {
+    return true;
+}
+
+// LEXER look_ahead Implementaion
+bool lexer_look(struct LEXER* lexer) {
+
+    lexer->look_ahead_size = 1;
+    for (size_t i=0; i<sizeof(keywords)/sizeof(keywords[0]); i++)
+        lexer->look_ahead_size = lexer->look_ahead_size > strlen(keywords[i])
+            ? lexer->look_ahead_size : strlen(keywords[i]);
+    for (size_t i=0; i<sizeof(isawords)/sizeof(isawords[0]); i++)
+        lexer->look_ahead_size = lexer->look_ahead_size > strlen(isawords[i])
+            ? lexer->look_ahead_size : strlen(isawords[i]);
+
+    lexer->look_ahead_buff = malloc(sizeof(char)*lexer->look_ahead_size);
+    if (lexer->look_ahead_buff == NULL)
+        lexer->look_ahead_size = 0;
+    return lexer->look_ahead_size > 0;
+}
+
+// LEXER Implementaion
+bool lexer_next(struct LEXER* lexer, struct LEXEME* into) {
+    return false;
+}
