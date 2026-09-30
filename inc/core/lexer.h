@@ -23,4 +23,62 @@ typedef enum LEXEME_TYPE {
     LEXEME_NUL      // Null
 } LexemeType, LexType;
 
+typedef struct LEXEME_IDENTIFIER {
+    unsigned int l_no;
+    unsigned int c_no;
+    unsigned int size;
+    char* data;
+} LexemeIdentifier, LexIdn;
+
+typedef struct LEXEME_PUNCTUATION {
+    unsigned int l_no;
+    unsigned int c_no;
+    char  data;
+} LexemePunctuation, LexPun;
+
+typedef struct LEXEME_KEYWORD {
+    unsigned int l_no;
+    unsigned int c_no;
+    unsigned int size;
+    char* data;
+} LexemeKeyword, LexKey;
+
+typedef enum LEXEME_LITERAL_TYPE {
+    LITERAL_NUMERIC,
+    LITERAL_COMMENT,
+    LITERAL_STRING
+} LexemeLiteralType, LexLitType;
+
+typedef struct LEXEME_LITERAL {
+    enum LEXEME_LITERAL_TYPE type;
+    unsigned int l_no;
+    unsigned int c_no;
+    unsigned int size;
+    char* data;
+} LexemeLiteral, LexLit;
+
+typedef struct LEXEME_OPERATION {
+    unsigned int l_no;
+    unsigned int c_no;
+    char  data;
+} LexemeOperation, LexOpr;
+
+typedef struct LEXEME_NULL {
+    unsigned int l_no;
+    unsigned int c_no;
+    char  data;
+} LexemeNull, LexNul;
+
+typedef struct LEXEME {
+    enum LEXEME_TYPE type;
+    union {
+        struct LEXEME_IDENTIFIER    idn;
+        struct LEXEME_PUNCTUATION   pun;
+        struct LEXEME_KEYWORD       key;
+        struct LEXEME_LITERAL       lit;
+        struct LEXEME_OPERATION     opr;
+        struct LEXEME_NULL          nul;
+    } as;
+} Lexeme, Lex;
+
 #endif
