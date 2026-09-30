@@ -21,7 +21,6 @@ typedef enum LEXEME_TYPE {
     LEXEME_LIT,     // Literals
     LEXEME_OPR,     // Operations
     LEXEME_NUL,     // Null
-    LEXEME_MEH
 } LexemeType, LexType;
 
 typedef struct LEXEME_IDENTIFIER {
