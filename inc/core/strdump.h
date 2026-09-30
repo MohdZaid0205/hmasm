@@ -76,4 +76,19 @@
 #define ARGVS_RESP_FTYPE "flag -[-f]ormat IGNORED"
 #define ARGVS_RESP_ITYPE "flag -[-i]sa IGNORED"
 
+// lexer.h _print_lexeme_[...] ~ GENERAL
+#define LEXER_PRINT_IDN "LEXEME [%3d:%3d] %(IDENTIFIER %) -> (%(%.*s%s%))" NLINE
+#define LEXER_PRINT_PUN "LEXEME [%3d:%3d] %(PUNCTUATION%) -> (%('%c'%))" NLINE
+#define LEXER_PRINT_KEY "LEXEME [%3d:%3d] %(KEY WORD   %) -> (%(%.*s%s%))" NLINE
+#define LEXER_PRINT_LIT "LEXEME [%3d:%3d] %(LITERAL    %) -> (%(%.*s%s%))" NLINE
+#define LEXER_PRINT_OPR "LEXEME [%3d:%3d] %(OPERATION  %) -> (%('%c'%))" NLINE
+#define LEXER_PRINT_NUL "LEXEME [%3d:%3d] %[ ! %] %(NULL%)    -> (%('%c'%))" NLINE
+#define LEXER_PRINT_ARG_STR(t)  t->l_no, t->c_no, t->size, t->data
+#define LEXER_PRINT_ARG_CHR(t)  t->l_no, t->c_no, t->data
+
+// execption block int _print_lexeme
+#define LEXER_PRINT_UKN "LEXEME type %(UNKNOWN%) while trying to print" NLINE
+#define LEXER_PRINT_UKN_INF INSET "Make sure to implement new lexeme types in %(_print_lexeme(...)%)" NLINE
+#define LEXER_PRINT_UKN_END "%s:%d" NLINE
+
 #endif

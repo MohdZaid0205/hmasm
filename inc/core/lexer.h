@@ -12,7 +12,7 @@
 // LEXEME_KEY   | Representation of pre defined keywords such as add, sub etc...|
 // LEXEME_LIT   | Representation of special data such as strings, numeric etc...|
 // LEXEME_OPR   | Representation of operations such as negetive, pointers etc...|
-// LEXEME_NUL   | Representation of insignificant cor ignorable charachters     |
+// LEXEME_NUL   | Representation of unrecognized charachters                    |
 // -------------+---------------------------------------------------------------+
 typedef enum LEXEME_TYPE {
     LEXEME_IDN,     // Identifiers
@@ -20,7 +20,8 @@ typedef enum LEXEME_TYPE {
     LEXEME_KEY,     // Keywords
     LEXEME_LIT,     // Literals
     LEXEME_OPR,     // Operations
-    LEXEME_NUL      // Null
+    LEXEME_NUL,     // Null
+    LEXEME_MEH
 } LexemeType, LexType;
 
 typedef struct LEXEME_IDENTIFIER {
@@ -30,7 +31,7 @@ typedef struct LEXEME_IDENTIFIER {
     char* data;
 } LexemeIdentifier, LexIdn;
 
-void _print_lexeme_identifier(struct LEXEME_IDENTIFIER* idn);
+void _print_lexeme_idn(struct LEXEME_IDENTIFIER* idn);
 
 typedef struct LEXEME_PUNCTUATION {
     unsigned int l_no;
@@ -38,7 +39,7 @@ typedef struct LEXEME_PUNCTUATION {
     char  data;
 } LexemePunctuation, LexPun;
 
-void _print_lexeme_punctuation(struct LEXEME_PUNCTUATION* pun);
+void _print_lexeme_pun(struct LEXEME_PUNCTUATION* pun);
 
 typedef struct LEXEME_KEYWORD {
     unsigned int l_no;
@@ -47,7 +48,7 @@ typedef struct LEXEME_KEYWORD {
     char* data;
 } LexemeKeyword, LexKey;
 
-void _print_lexeme_keyword(struct LEXEME_KEYWORD* key);
+void _print_lexeme_key(struct LEXEME_KEYWORD* key);
 
 typedef enum LEXEME_LITERAL_TYPE {
     LITERAL_NUMERIC,
@@ -63,7 +64,7 @@ typedef struct LEXEME_LITERAL {
     char* data;
 } LexemeLiteral, LexLit;
 
-void _print_lexeme_literal(struct LEXEME_LITERAL* lit);
+void _print_lexeme_lit(struct LEXEME_LITERAL* lit);
 
 typedef struct LEXEME_OPERATION {
     unsigned int l_no;
@@ -71,7 +72,7 @@ typedef struct LEXEME_OPERATION {
     char  data;
 } LexemeOperation, LexOpr;
 
-void _print_lexeme_operation(struct LEXEME_OPERATION* opr);
+void _print_lexeme_opr(struct LEXEME_OPERATION* opr);
 
 typedef struct LEXEME_NULL {
     unsigned int l_no;
@@ -79,7 +80,7 @@ typedef struct LEXEME_NULL {
     char  data;
 } LexemeNull, LexNul;
 
-void _print_lexeme_null(struct LEXEME_NULL* nul);
+void _print_lexeme_nul(struct LEXEME_NULL* nul);
 
 typedef struct LEXEME {
     enum LEXEME_TYPE type;
