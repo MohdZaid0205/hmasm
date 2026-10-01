@@ -104,6 +104,6 @@ typedef struct LEXER {
 } Lexer;
 
 bool lexer_look(struct LEXER* lexer);
-bool lexer_next(struct LEXER* lexer, struct LEXEME* into);
+bool lexer_next(struct LEXER* lexer, struct LEXEME* lexeme);
 
 #endif
