@@ -2,6 +2,7 @@
 #include "logging.h"
 #include "exceptions.h"
 #include "strdump.h"
+#include <stdio.h>
 
 // Implemetaion for _print_lexeme_[...]
 void _print_lexeme_idn(struct LEXEME_IDENTIFIER *idn) {
@@ -56,8 +57,8 @@ void _print_lexeme(struct LEXEME *lex) {
 // useless definitions to make things cleaner
 #define INCREMENT(x) x += 1
 #define DECREMENT(x) x -= 1
-#define CHECKC(v) c == v
-#define CHECKS(v) strncmp(v, s, strlen(v)) == 0
+#define CHECKC(v) (c == v)
+#define CHECKS(v) (strncmp(v, s, strlen(v)) == 0)
 #define PROPER(v) (s[strlen(v)] == ' '          \
                 || s[strlen(v)] == '\n'         \
                 || s[strlen(v)] == '\t'         \
@@ -98,7 +99,7 @@ static const char* isawords[] = {
     "int", "sti" , "cli",
 };
 
-// utility functions for lexer
+// utility function for deciding begining
 bool _begin_idn(char c, char* s) {
     return isalpha(c)
         || CHECKC('_');
@@ -136,6 +137,68 @@ bool _begin_nul(char c, char* s) {
     return true;
 }
 
+// retreive required part of content from file
+bool _collect_idn(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming we have checked that upcoming token is supposedly a identifier
+    char c;
+    long b = ftell(lexer->file);
+    while ((c = fgetc(lexer->file)) != EOF) {
+        if (!isalnum(c) && !CHECKC('_')) {
+            break;
+        }
+    }
+    long e = ftell(lexer->file);
+    lexeme->type = LEXEME_IDN;
+    lexeme->as.idn.size = e-b-1;
+    lexeme->as.idn.data = malloc(sizeof(char)*(e-b));
+    
+    if (!lexeme->as.idn.data)
+        return false;
+
+    fseek(lexer->file, b, SEEK_SET);
+    fread(lexeme->as.idn.data, 1, e-b-1, lexer->file);
+    lexeme->as.idn.data[e-b-1] = '\0';
+    return true;
+}
+bool _collect_pun(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming we have checked that upcoming token is supposedly a punctuation
+    lexeme->type = LEXEME_PUN;
+    lexeme->as.pun.data = fgetc(lexer->file);
+    return true;
+}
+bool _collect_key(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming we have checked that upcoming token is supposedly a keyword
+    
+    char  c = EOF; /**insignificant*/
+    char* s = lexer->look_ahead_buff;
+    
+    char* key = NULL;
+    for (size_t i=0; i<sizeof(keywords)/sizeof(keywords[0]); i++)
+        if (CHECKS(keywords[i]) && PROPER(keywords[i]))
+            key = (char*) keywords[i];
+    for (size_t i=0; i<sizeof(isawords)/sizeof(isawords[0]); i++)
+        if (CHECKS(isawords[i]) && PROPER(isawords[i]))
+            key = (char*) isawords[i];
+    lexeme->type = LEXEME_KEY;
+    lexeme->as.key.data = key;
+    lexeme->as.key.size = sizeof(key);
+    return true;
+}
+bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme);
+    // TODO: imeplement required supportive functions
+    //      TODO: _collect_lit_string
+    //      TODO: _collect_lit_comment
+    //          TODO: -> _inline
+    //          TODO: -> _outline
+    //      TODO: _collect_lit_numeric
+    //          TODO: -> _binary  | _2
+    //          TODO: -> _hexa    | _8
+    //          TODO: -> _decimal | _10
+    //          TODO: -> _octal   | _16
+    // NOTE: i may as well treat arrays as literals
+bool _collect_opr(struct LEXER* lexer, struct LEXEME* lexeme);
+bool _collect_nul(struct LEXER* lexer, struct LEXEME* lexeme);
+
 // LEXER look_ahead Implementaion
 bool lexer_look(struct LEXER* lexer) {
     lexer->look_ahead_size = 1;
@@ -154,151 +217,19 @@ bool lexer_look(struct LEXER* lexer) {
     return lexer->look_ahead_size > 0;
 }
 
-// LEXER Implementaion
+// LEXER implementation
 bool lexer_next(struct LEXER* lexer, struct LEXEME* lexeme) {
-    char c = EOF;
+    char c = fgetc(lexer->file);
+    if (c == EOF)
+        return false;
 
-    // ignore uncessary charachters
-    while ((c = fgetc(lexer->file)) != EOF) {
-        if (CHECKC(' ')){
-            lexer->c_no+= 1;
-        } else
-        if (CHECKC('\n')){
-            lexer->l_no+= 1;
-            lexer->c_no = 0;
-        } else
-            break;
-    }
-    lexer->c_no += 1;
-
-    fseek(lexer->file, -1, SEEK_CUR);
-    size_t s = fread(
-        lexer->look_ahead_buff, 1, 
-        lexer->look_ahead_size, lexer->file
-    );
-    lexer->look_ahead_buff[s] = '\0';
-    fseek(lexer->file, -s, SEEK_CUR);
-    fseek(lexer->file, +1, SEEK_CUR);
-
-    // check against punctuations
-    if (_begin_pun(c, lexer->look_ahead_buff)) {
-        lexeme->type = LEXEME_PUN;
-        lexeme->as.pun.l_no = lexer->l_no;
-        lexeme->as.pun.c_no = lexer->c_no;
-        lexeme->as.pun.data = c;
-    } else
-    // check against operations
-    if (_begin_opr(c, lexer->look_ahead_buff)) {
-        lexeme->type = LEXEME_OPR;
-        lexeme->as.pun.l_no = lexer->l_no;
-        lexeme->as.pun.c_no = lexer->c_no;
-        lexeme->as.pun.data = c;
-    } else
-    // check against literals
-    if (_begin_lit(c, lexer->look_ahead_buff)) {
-        lexeme->type = LEXEME_LIT;
-        long b = ftell(lexer->file) - 1;
-        
-        // check against comments
-        if (CHECKC(';')) {
-            lexeme->as.lit.type = LITERAL_COMMENT;
-            while ((c = fgetc(lexer->file)) != EOF) {
-                if (CHECKC(';') || CHECKC('\n'))
-                    break;
-            }
-        } else 
-        // check against strings
-        if (CHECKC('"')) {
-            lexeme->as.lit.type = LITERAL_STRING;
-            while ((c = fgetc(lexer->file)) != EOF) {
-                if (CHECKC('"') || CHECKC('\n'))
-                    break;
-            }
-        } else
-        // check agains numbers
-        if (isdigit(c)) {
-            lexeme->as.lit.type = LITERAL_NUMERIC;
-            while ((c = fgetc(lexer->file)) != EOF) {
-                if (!isdigit(c))
-                    break;
-            }
-        }
-
-        long e = ftell(lexer->file);
-        lexeme->as.lit.size = lexeme->as.lit.type == LITERAL_NUMERIC? e-b-1: e-b;
-        lexeme->as.lit.data = malloc(sizeof(char)*(e-b+1));
-
-        fseek(lexer->file, b, SEEK_SET);
-        fread(lexeme->as.lit.data, 1, lexeme->as.lit.size, lexer->file);
-        lexeme->as.lit.data[e-b] = '\0';
-        lexeme->as.lit.l_no = lexer->l_no;
-        lexeme->as.lit.c_no = lexer->c_no;
-
-        lexer->c_no += lexeme->as.lit.size;
-        
-        if (CHECKC('\n') && lexeme->as.lit.type != LITERAL_NUMERIC) {
-            lexeme->as.lit.data[e-b-1] = '\0';
-            lexer->l_no+= 1;
-            lexer->c_no = 0;
-        }
-
-    } else
-    // check against keywords
-    if (_begin_key(c, lexer->look_ahead_buff)) {
-        lexeme->type = LEXEME_KEY;
-        
-        lexeme->as.key.data = NULL;
-        char* s = lexer->look_ahead_buff;
-        for (size_t i=0; i<sizeof(keywords)/sizeof(keywords[0]); i++)
-            if (CHECKS(keywords[i]) && PROPER(keywords[i]))
-                lexeme->as.key.data = (char*) keywords[i];
-        for (size_t i=0; i<sizeof(isawords)/sizeof(isawords[0]); i++)
-            if (CHECKS(isawords[i]) && PROPER(isawords[i]))
-                lexeme->as.key.data = (char*) isawords[i];
-        lexeme->as.key.size = strlen(lexeme->as.key.data);
-        lexeme->as.key.l_no = lexer->l_no;
-        lexeme->as.key.c_no = lexer->c_no;
-        
-        lexer->c_no += lexeme->as.key.size;
-        fseek(lexer->file, lexeme->as.key.size - 1, SEEK_CUR);
-
-    } else
-    // cehck against identifiers
     if (_begin_idn(c, lexer->look_ahead_buff)) {
-        lexeme->type = LEXEME_IDN;
-        
-        long b = ftell(lexer->file) - 1;
-        while ((c = fgetc(lexer->file)) != EOF) {
-            if (!isalnum(c) && !(CHECKC('_')))
-                break;
-        }
-        
-        long e = ftell(lexer->file);
-        lexeme->as.idn.data = malloc(sizeof(char)*(e-b+1));
-        lexeme->as.idn.size = e-b-1;
-
-        fseek(lexer->file, b, SEEK_SET);
-        fread(lexeme->as.idn.data, 1, lexeme->as.idn.size, lexer->file);
-        lexeme->as.idn.data[e-b] = '\0';
-        lexeme->as.idn.l_no = lexer->l_no;
-        lexeme->as.idn.c_no = lexer->c_no;
-
-        lexer->c_no += lexeme->as.idn.size;
-        
-        if (CHECKC('\n')) {
-            lexeme->as.idn.data[e-b-1] = '\0';
-            lexer->l_no+= 1;
-            lexer->c_no = 0;
-        }   
-    }
-    else {
+        fseek(lexer->file, -1, SEEK_CUR);
+        _collect_idn(lexer, lexeme);
+    } else {
         lexeme->type = LEXEME_NUL;
-        lexeme->as.nul.l_no = lexer->l_no;
-        lexeme->as.nul.c_no = lexer->c_no;
         lexeme->as.nul.data = c;
     }
-
-    // printf("%c", c);
-
-    return c != EOF;
+    _print_lexeme(lexeme);
+    return true;
 }
