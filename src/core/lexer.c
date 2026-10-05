@@ -196,8 +196,18 @@ bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme);
     //          TODO: -> _decimal | _10
     //          TODO: -> _octal   | _16
     // NOTE: i may as well treat arrays as literals
-bool _collect_opr(struct LEXER* lexer, struct LEXEME* lexeme);
-bool _collect_nul(struct LEXER* lexer, struct LEXEME* lexeme);
+bool _collect_opr(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming we have checked that upcoming token is supposedly a operation
+    lexeme->type = LEXEME_OPR;
+    lexeme->as.opr.data = fgetc(lexer->file);
+    return true;
+}
+bool _collect_nul(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming we have checked that upcoming token is unclassified
+    lexeme->type = LEXEME_NUL;
+    lexeme->as.nul.data = fgetc(lexer->file);
+    return true;
+}
 
 // LEXER look_ahead Implementaion
 bool lexer_look(struct LEXER* lexer) {
