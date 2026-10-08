@@ -186,7 +186,6 @@ bool _collect_key(struct LEXER* lexer, struct LEXEME* lexeme) {
 }
 bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme);
     // TODO: imeplement required supportive functions
-    //      TODO: _collect_lit_string
     //      TODO: _collect_lit_comment
     //          TODO: -> _inline
     //          TODO: -> _outline
@@ -196,6 +195,28 @@ bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme);
     //          TODO: -> _decimal | _10
     //          TODO: -> _octal   | _16
     // NOTE: i may as well treat arrays as literals
+bool _collect_lit_str(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (") and has been handled by caller
+    char c;
+    long b = ftell(lexer->file);
+    while ((c = fgetc(lexer->file)) != EOF) {
+        if (CHECKC('\n') || CHECKC('"')) {
+            break;
+        }
+    }
+    long e = ftell(lexer->file);
+    lexeme->as.lit.size = e-b-1;
+    lexeme->as.lit.data = malloc(sizeof(char)*(e-b-1));
+
+    if (!lexeme->as.lit.data)
+        return false;
+
+    fseek(lexer->file, b, SEEK_SET);
+    fread(lexeme->as.lit.data, 1, e-b-2, lexer->file);
+    lexeme->as.lit.data[e-b-2] = '\0';
+    assert(fgetc(lexer->file) == '"');  // FIXME: raise exception when end is not "
+    return true;
+}
 bool _collect_opr(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is supposedly a operation
     lexeme->type = LEXEME_OPR;
