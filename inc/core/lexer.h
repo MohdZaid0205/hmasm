@@ -76,7 +76,7 @@ void _print_lexeme_opr(struct LEXEME_OPERATION* opr);
 typedef struct LEXEME_NULL {
     size_t l_no;
     size_t c_no;
-    char  data;
+    char   data;
 } LexemeNull, LexNul;
 
 void _print_lexeme_nul(struct LEXEME_NULL* nul);

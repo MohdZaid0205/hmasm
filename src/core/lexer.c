@@ -2,6 +2,7 @@
 #include "logging.h"
 #include "exceptions.h"
 #include "strdump.h"
+#include <ctype.h>
 #include <stdio.h>
 
 // Implemetaion for _print_lexeme_[...]
@@ -138,6 +139,8 @@ bool _begin_nul(char c, char* s) {
 }
 
 // retreive required part of content from file
+
+// collect identifiers
 bool _collect_idn(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is supposedly a identifier
     char c;
@@ -160,12 +163,16 @@ bool _collect_idn(struct LEXER* lexer, struct LEXEME* lexeme) {
     lexeme->as.idn.data[e-b-1] = '\0';
     return true;
 }
+
+// collect punctuation
 bool _collect_pun(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is supposedly a punctuation
     lexeme->type = LEXEME_PUN;
     lexeme->as.pun.data = fgetc(lexer->file);
     return true;
 }
+
+// collect keyword
 bool _collect_key(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is supposedly a keyword
     
@@ -184,18 +191,124 @@ bool _collect_key(struct LEXER* lexer, struct LEXEME* lexeme) {
     lexeme->as.key.size = sizeof(key);
     return true;
 }
-bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme);
-    // TODO: imeplement required supportive functions
-    //      TODO: _collect_lit_comment
-    //          TODO: -> _inline
-    //          TODO: -> _outline
-    //      TODO: _collect_lit_numeric
-    //          TODO: -> _binary  | _2
-    //          TODO: -> _hexa    | _8
-    //          TODO: -> _decimal | _10
-    //          TODO: -> _octal   | _16
-    // NOTE: i may as well treat arrays as literals
-bool _collect_lit_str(struct LEXER* lexer, struct LEXEME* lexeme) {
+
+// collect literal numeric
+bool _collect_lit_numeric(struct LEXER* lexer, struct LEXEME* lexeme) {
+    char c;
+    long b = ftell(lexer->file);
+    while ((c = fgetc(lexer->file)) != EOF) {
+        if (CHECKC('\n') || CHECKC(' ')
+                || _begin_pun(c, "") || _begin_opr(c, "")) {
+            break;
+        }
+    }
+    long e = ftell(lexer->file);
+    lexeme->as.lit.size = e-b-1;
+    lexeme->as.lit.data = malloc(sizeof(char)*(e-b));
+
+    if (!lexeme->as.lit.data)
+        return false;
+
+    fseek(lexer->file, b, SEEK_SET);
+    fread(lexeme->as.lit.data, 1, e-b-1, lexer->file);
+    lexeme->as.lit.data[e-b-1] = '\0';
+    return true;
+}
+
+// collect literal numeric base 2
+bool _collect_lit_numeric_2(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (b) and has been handled by caller
+    bool result = _collect_lit_numeric(lexer, lexeme);
+    char c;
+    for (int i=0; i<lexeme->as.lit.size; i++) {
+        c = lexeme->as.lit.data[i];
+        // FIXME: Raise exception if not a binary string
+        assert(
+               CHECKC('0')
+            || CHECKC('1')
+        );
+    }
+    return result;
+}
+
+// collect literal numeric base 8
+bool _collect_lit_numeric_8(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (o) and has been handled by caller
+    bool result = _collect_lit_numeric(lexer, lexeme);
+    char c;
+    for (int i=0; i<lexeme->as.lit.size; i++) {
+        c = lexeme->as.lit.data[i];
+        // FIXME: Raise exception if not a binary string
+        assert(
+               CHECKC('0')
+            || CHECKC('1')
+            || CHECKC('2')
+            || CHECKC('3')
+            || CHECKC('4')
+            || CHECKC('5')
+            || CHECKC('6')
+            || CHECKC('7')
+        );
+    }
+    return result;
+}
+
+// collect literal numeric base 10
+bool _collect_lit_numeric_10(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (d) and has been handled by caller
+    bool result = _collect_lit_numeric(lexer, lexeme);
+    char c;
+    for (int i=0; i<lexeme->as.lit.size; i++) {
+        c = lexeme->as.lit.data[i];
+        // FIXME: Raise exception if not a binary string
+        assert(
+               CHECKC('0')
+            || CHECKC('1')
+            || CHECKC('2')
+            || CHECKC('3')
+            || CHECKC('4')
+            || CHECKC('5')
+            || CHECKC('6')
+            || CHECKC('7')
+            || CHECKC('8')
+            || CHECKC('9')
+        );
+    }
+    return result;
+}
+
+// collect literal numeric base 16
+bool _collect_lit_numeric_16(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (x) and has been handled by caller
+    bool result = _collect_lit_numeric(lexer, lexeme);
+    char c;
+    for (int i=0; i<lexeme->as.lit.size; i++) {
+        c = lexeme->as.lit.data[i];
+        // FIXME: Raise exception if not a binary string
+        assert(
+               CHECKC('0')
+            || CHECKC('1')
+            || CHECKC('2')
+            || CHECKC('3')
+            || CHECKC('4')
+            || CHECKC('5')
+            || CHECKC('6')
+            || CHECKC('7')
+            || CHECKC('8')
+            || CHECKC('9')
+            || CHECKC('A')
+            || CHECKC('B')
+            || CHECKC('C')
+            || CHECKC('D')
+            || CHECKC('E')
+            || CHECKC('F')
+        );
+    }
+    return result;
+}
+
+// collect literal string
+bool _collect_lit_string(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming first charachter is (") and has been handled by caller
     char c;
     long b = ftell(lexer->file);
@@ -212,17 +325,116 @@ bool _collect_lit_str(struct LEXER* lexer, struct LEXEME* lexeme) {
         return false;
 
     fseek(lexer->file, b, SEEK_SET);
-    fread(lexeme->as.lit.data, 1, e-b-2, lexer->file);
-    lexeme->as.lit.data[e-b-2] = '\0';
+    fread(lexeme->as.lit.data, sizeof(char), e-b-1, lexer->file);
+    lexeme->as.lit.data[e-b-1] = '\0';
     assert(fgetc(lexer->file) == '"');  // FIXME: raise exception when end is not "
     return true;
 }
+
+// collect literal inline
+bool _collect_lit_comment_outline(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (;;) and has been handled by caller
+    char c;
+    long b = ftell(lexer->file);
+    while ((c = fgetc(lexer->file)) != EOF) {
+        if (CHECKC('\n')) {
+            break;
+        }
+    }
+    long e = ftell(lexer->file);
+    lexeme->as.lit.size = e-b-1;
+    lexeme->as.lit.data = malloc(sizeof(char)*(e-b-1));
+
+    if (!lexeme->as.lit.data)
+        return false;
+
+    fseek(lexer->file, b, SEEK_SET);
+    fread(lexeme->as.lit.data, sizeof(char), e-b-1, lexer->file);
+    lexeme->as.lit.data[e-b-1] = '\0';
+
+    return true;
+}
+
+// collect literal string
+bool _collect_lit_comment_inline(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (") and has been handled by caller
+    char c;
+    long b = ftell(lexer->file);
+    while ((c = fgetc(lexer->file)) != EOF) {
+        if (CHECKC('\n') || CHECKC(';')) {
+            break;
+        }
+    }
+
+    long e = ftell(lexer->file);
+    lexeme->as.lit.size = e-b-1;
+    lexeme->as.lit.data = malloc(sizeof(char)*(e-b-1));
+
+    if (!lexeme->as.lit.data)
+        return false;
+
+    fseek(lexer->file, b, SEEK_SET);
+    fread(lexeme->as.lit.data, sizeof(char), e-b-1, lexer->file);
+    lexeme->as.lit.data[e-b-1] = '\0';
+
+    c = fgetc(lexer->file);
+    assert(CHECKC(';'));    // FIXME: Raise exception when line ends or eof hist before closing;
+    return true;
+}
+
+// collect literal
+bool _collect_lit(struct LEXER* lexer, struct LEXEME* lexeme) {
+    // assuming first charachter is (0) and has been handled by caller
+    lexeme->type = LEXEME_LIT;
+    char c = fgetc(lexer->file);
+
+    if (isdigit(c)) {
+        lexeme->as.lit.type = LITERAL_NUMERIC;
+        if (CHECKC('0')) {
+            c = fgetc(lexer->file);
+            if (CHECKC('b'))
+                return _collect_lit_numeric_2(lexer, lexeme);
+            else
+            if (CHECKC('o'))
+                return _collect_lit_numeric_8(lexer, lexeme);
+            else
+            if (CHECKC('d'))
+                return _collect_lit_numeric_10(lexer, lexeme);
+            else
+            if (CHECKC('x'))
+                return _collect_lit_numeric_16(lexer, lexeme);
+            else {
+                fseek(lexer->file, -2, SEEK_CUR);
+                return _collect_lit_numeric_10(lexer, lexeme);
+            }
+            // return false;   // FIXME: Raise exception of preceeding 0s or unrecognized base
+        } else {
+            fseek(lexer->file, -1, SEEK_CUR);
+            return _collect_lit_numeric_10(lexer, lexeme);
+        }
+    } else if (CHECKC('"')) {
+        lexeme->as.lit.type = LITERAL_STRING;
+        return _collect_lit_string(lexer, lexeme);
+    } else if (CHECKC(';')) {
+        lexeme->as.lit.type = LITERAL_COMMENT;
+        c = fgetc(lexer->file);
+        if (CHECKC(';'))
+            return _collect_lit_comment_outline(lexer, lexeme);
+        fseek(lexer->file, -1, SEEK_CUR);
+        return _collect_lit_comment_inline(lexer, lexeme);
+    }
+    return false;
+}
+
+// collect operator
 bool _collect_opr(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is supposedly a operation
     lexeme->type = LEXEME_OPR;
     lexeme->as.opr.data = fgetc(lexer->file);
     return true;
 }
+
+// collect null
 bool _collect_nul(struct LEXER* lexer, struct LEXEME* lexeme) {
     // assuming we have checked that upcoming token is unclassified
     lexeme->type = LEXEME_NUL;
@@ -257,9 +469,17 @@ bool lexer_next(struct LEXER* lexer, struct LEXEME* lexeme) {
     if (_begin_idn(c, lexer->look_ahead_buff)) {
         fseek(lexer->file, -1, SEEK_CUR);
         _collect_idn(lexer, lexeme);
+    } else if (_begin_lit(c, lexer->look_ahead_buff)) {
+        fseek(lexer->file, -1, SEEK_CUR);
+        _collect_lit(lexer, lexeme);
     } else {
         lexeme->type = LEXEME_NUL;
-        lexeme->as.nul.data = c;
+        if (CHECKC('\n'))
+            lexeme->as.nul.data = 'N';
+        else if (CHECKC(' '))
+            lexeme->as.nul.data = 'S';
+        else
+            lexeme->as.nul.data = c;
     }
     _print_lexeme(lexeme);
     return true;
